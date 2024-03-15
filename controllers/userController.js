@@ -91,3 +91,36 @@ export const getMe = async (req, res) => {
         })
     }
 }
+
+export const getAccess = async (req, res) => {
+    try {
+        const user = await UserModel.findById(req.userId)
+
+        if (!user) {
+            return res.sendStatus(404).json({
+                message: 'Пользователь не найден'
+            })
+        }
+    } catch (error) {
+        res.status(500).json({
+            message: 'Нет доступа'
+        })
+    }
+};
+
+export const getAllUsers = async (req, res) => {
+    try {
+        const user = await UserModel.findById(req.userId)
+
+        if (!user || user._doc.role !== 'admin') return res.status(404).json({
+            message: 'Нет доступа'
+        })
+
+        const allUsers = await UserModel.find()
+        if(!allUsers) throw new Error('Произошло ошибка или нет зарегистрированных пользователей')
+
+        res.status(200).json(allUsers)
+    } catch (error) {
+        req.status(500).json({message:'Что-то пошло не так'})
+    }
+};

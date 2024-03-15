@@ -40,7 +40,8 @@ export const create = async (req,res)=>{
             acidity:req.body.acidity,
             density:req.body.density,
             forWhat:req.body.forWhat,
-            treatment:req.body.treatment
+            treatment:req.body.treatment,
+            tags:req.body.tags
         })
         const post = await doc.save()
 
@@ -48,5 +49,19 @@ export const create = async (req,res)=>{
     } catch (err) {
         console.log(err)
         res.status(500).json({ message: "Не удалось создать пост" })
+    }
+}
+
+export const getFavorites = async (req, res) => {
+    try {
+        const params = req.body.params
+        let temp = [];
+        params.map((key) => {
+            temp.push({_id:(key)})
+        })
+        const posts = await PostModel.find({ $or: temp})
+        res.json(posts)
+    } catch (error) {
+        res.json({message:error.message})
     }
 }

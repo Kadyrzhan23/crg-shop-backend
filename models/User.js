@@ -20,7 +20,7 @@ const UserSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        default:'start'
+        default: 'start'
     },
     address: {
         type: Array,
@@ -32,7 +32,7 @@ const UserSchema = new mongoose.Schema({
     },
     avatarUrl: {
         type: String,
-        default:''
+        default: ''
     },
 },
     {

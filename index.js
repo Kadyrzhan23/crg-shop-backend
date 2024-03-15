@@ -4,20 +4,22 @@ import { registerValidator, loginValidator } from './validation/User.js'
 import checkAuth from './utils/checkAuth.js'
 import * as UserController from './controllers/userController.js'
 import * as PostController from './controllers/postController.js'
+import * as OrderController from './controllers/orderController.js'
 import { createPostValidation } from './validation/Post.js'
 import cors from "cors";
 import multer from 'multer';
 import fs from 'fs'
-import uniqid from 'uniqid'
 import path from "path";
+// import ('dotenv').config()
 
 mongoose
-    .connect('mongodb+srv://zarimkofe:wwwwww@cluster0.ddu19sw.mongodb.net/blog?retryWrites=true&w=majority')
+    // .connect('mongodb+srv://zarimkofe:wwwwww@cluster0.ddu19sw.mongodb.net/blog?retryWrites=true&w=majority')
+    .connect('mongodb+srv://zarimkofe:wwwwww@cluster0.ddu19sw.mongodb.net/blog?retryWrites=true&w=majority&ssl=true')
+
     .then(() => console.log('Db Ok'))
     .catch(err => console.log('Error connecting to Db' + err))
 
 const app = express()
-
 
 //Загрузка фото для верификации
 const uploadDir = './uploads'
@@ -49,11 +51,15 @@ app.use('/uploads', express.static('uploads'));
 app.post('/auth/register', registerValidator, UserController.register)
 app.post('/auth/login', loginValidator, UserController.login)
 app.get('/auth/me', checkAuth, UserController.getMe)
+app.post('/get/all-users', checkAuth, UserController.getAllUsers)
 
 //Посты
 app.get('/post/getAll', PostController.getAll)
 app.post('/post/create', createPostValidation, PostController.create)
+app.post('/post/favorites',PostController.getFavorites)
 
+//Заказы
+app.post('/new-order',checkAuth,OrderController.requestNewOrder)
 
 // Роут для загрузки картинки
 app.post('/upload', upload.single('image'), (req, res) => {

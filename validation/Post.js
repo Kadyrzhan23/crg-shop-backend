@@ -18,5 +18,7 @@ export const createPostValidation = [
     body('density','Что то не так с (density)').isNumeric(),
     body('forWhat','Что то не так с (forWhat)').isString(),
     body('treatment','Что то не так с (treatment)').isString(),
+    body('tags','Что то не так с (tags)').isArray(),
+
 ]
 

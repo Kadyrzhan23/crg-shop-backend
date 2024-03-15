@@ -70,6 +70,10 @@ const PostSchema = new mongoose.Schema({
     treatment:{
         type:String,
         required:true,
+    },
+    tags:{
+        requires:true,
+        type:Array
     }
 })
 
