@@ -10,11 +10,12 @@ import cors from "cors";
 import multer from 'multer';
 import fs from 'fs'
 import path from "path";
+import checkAuthAdmin from './utils/checkAuthAdmin.js'
 // import ('dotenv').config()
 
 mongoose
-    // .connect('mongodb+srv://zarimkofe:wwwwww@cluster0.ddu19sw.mongodb.net/blog?retryWrites=true&w=majority')
-    .connect('mongodb+srv://zarimkofe:wwwwww@cluster0.ddu19sw.mongodb.net/blog?retryWrites=true&w=majority&ssl=true')
+    .connect('mongodb+srv://zarimkofe:wwwwww@cluster0.ddu19sw.mongodb.net/blog?retryWrites=true&w=majority')
+    // .connect('mongodb+srv://zarimkofe:wwwwww@cluster0.ddu19sw.mongodb.net/blog?retryWrites=true&w=majority&ssl=true')
 
     .then(() => console.log('Db Ok'))
     .catch(err => console.log('Error connecting to Db' + err))
@@ -59,7 +60,14 @@ app.post('/post/create', createPostValidation, PostController.create)
 app.post('/post/favorites',PostController.getFavorites)
 
 //Заказы
-app.post('/new-order',checkAuth,OrderController.requestNewOrder)
+app.post('/new-order',checkAuth,OrderController.create,OrderController.sendMessage)
+app.get('/get-my-orders',checkAuth,OrderController.getMyOrders)
+
+//Запросы с требованием админских прав
+app.get('/get-all-orders',checkAuthAdmin,OrderController.getAllOrders)
+app.patch('/order',checkAuthAdmin,OrderController.updateStatus)
+
+
 
 // Роут для загрузки картинки
 app.post('/upload', upload.single('image'), (req, res) => {

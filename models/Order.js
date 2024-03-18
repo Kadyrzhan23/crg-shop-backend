@@ -20,6 +20,18 @@ const OrderSchema = new mongoose.Schema({
     closingDate: {
         type: String,
         default: null,
+    },
+    comment:{
+        type: String,
+        default: null,
+    },
+    status:{
+        type: String,
+        default: "В ожидании",
+    },
+    totalPrice:{
+        type:String,
+        required: true,
     }
 
 },
