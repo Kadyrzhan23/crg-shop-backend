@@ -22,9 +22,9 @@ export const sendMessage = async (req, res) => {
         message += `<a href="tel:${user._doc.phoneNumber}">Номер телефона: </a>${user._doc.phoneNumber}\n`
         message += `<b>Id заказа: </b>${req.order.id}\n`
         message += `<b>Статус клиента: </b>${user._doc.role}\n`
-        message += `<b>Заказ</b>\n`
+        message += `<b>Заказ:</b>\n`
         basket.map((product, index) => {
-            message += `${product.name}: ${product.amount} * ${product.price}\n`
+            message += `${product.name} (<i>${product.weight}</i>) под ${product.roast}: ${product.amount} * ${product.price}\n`
             const price = +product.price.split(' ').join('')
             const amount = product.amount
             totalCost += amount * price
@@ -59,7 +59,7 @@ export const create = async (req, res, next) => {
             comment: req.body.comment,
             totalPrice: req.body.totalPrice
         })
-
+        console.log(Date.now());
         const order = await doc.save()
         req.order = order
         next()
