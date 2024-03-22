@@ -32,6 +32,14 @@ const OrderSchema = new mongoose.Schema({
     totalPrice:{
         type:String,
         required: true,
+    },
+    rejectedList:{
+        type:Array,
+        default: [],
+    },
+    telegram:{
+        type:Object,
+        default: {},
     }
 
 },

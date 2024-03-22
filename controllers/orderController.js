@@ -1,6 +1,7 @@
 import axios from 'axios'
 import UserModel from '../models/User.js'
 import OrderModel from '../models/Order.js'
+import { request } from 'express'
 const token = '6669205103:AAE24RYRkDOPbZ46ygWV6CoZENfXBIiAQi8'
 const chat_id = '-1002066903328'
 const uri = `https://api.telegram.org/bot${token}/sendMessage`
@@ -29,7 +30,7 @@ export const sendMessage = async (req, res) => {
             const amount = product.amount
             totalCost += amount * price
             if (index === basket.length - 1) {
-                message += `<b>Итого: </b> ${req.body.totalCost}\n`
+                message += `<b>Итого: </b> ${req.body.totalPrice}\n`
                 req.order.comment !== '' ? message += `<b>Комментария от клиента: </b> ${req.order.comment}\n` : null
             }
         })
@@ -38,15 +39,22 @@ export const sendMessage = async (req, res) => {
             parse_mode: 'html',
             text: message,
         })
+        
         if (request.status === 200) {
-            res.status(200).json({ message: "Заказ успешно создался" })
+            await OrderModel.findByIdAndUpdate({_id:req.order.id},{
+                telegram:{
+                    chat_id:request.data.result.message_id,
+                }
+            })
+            res.status(200).json({ 
+                message: "Заказ успешно создался",
+            data:request.data.result })
         }
     } catch (error) {
         console.log(error.message)
         res.status(500).json({ message: error.message })
     }
 }
-
 
 export const create = async (req, res, next) => {
     try {
@@ -55,7 +63,7 @@ export const create = async (req, res, next) => {
         const doc = new OrderModel({
             userId: req.userId,
             listProducts: basket,
-            creationDate: Date.now(),
+            creationDate: getDate(),
             comment: req.body.comment,
             totalPrice: req.body.totalPrice
         })
@@ -90,9 +98,9 @@ export const getAllOrders = async (req, res) => {
         }
 
         const allOrders = await OrderModel.find()
-        if(!allOrders){
+        if (!allOrders) {
             return res.status(400).json({
-                message:'Не удалось получить всех заказов'
+                message: 'Не удалось получить всех заказов'
             })
         }
 
@@ -110,10 +118,141 @@ export const updateStatus = async (req, res) => {
             {
                 status: nextStatus
             })
-            
         res.status(200).json({ success: true })
 
     } catch (error) {
         res.status(500).json({ message: error.message })
     }
 };
+
+export const updateProductAmountInOrder = async (req, res) => {
+    try {
+        console.log(req.body)
+        let currentProduct = null;
+        const order = await OrderModel.findById(req.body.orderId)
+        if (order.status !== 'В ожидании') {
+            return res.status(400).json({ message: 'Заказ можно мзменить только в состоянии Ожидания' })
+        }
+        const listProducts = order.listProducts
+        listProducts.forEach(product => {
+            if (product.id === req.body.productId) {
+                if (product.amount === req.body.currentAmount) {
+                    console.log(product)
+                    currentProduct = product
+                    product.amount = req.body.nextAmount
+                    req.productWeight = product.weight
+                }
+            }
+        })
+        if (currentProduct === null) {
+            return res.status(400).json({ message: 'Заказ можно мзменить только в состоянии Ожидания' })
+        }
+        if (0 < req.body.currentAmount - req.body.nextAmount) {
+            currentProduct.comment = req.body.comment
+            currentProduct.changedBy = {
+                userId: req.userId,
+                userName: req.userName,
+                updated:getDate()
+            }
+        }
+        let rejectedList = order.rejectedList
+        let productBool = false
+        let productIndex = null
+        rejectedList.forEach((product,index) => {
+            if(product.id === req.body.productId){
+                if (product.weight === req.productWeight){
+                    productBool = true
+                    productIndex = index
+                }
+            }
+        })
+
+        if(productBool && productIndex !== null){
+            rejectedList[productIndex].amount = rejectedList[productIndex].amount + (req.body.currentAmount - req.body.nextAmount)
+        }else{
+            // currentProduct.amount = req.body.nextAmount - req.body.currentAmount
+            rejectedList.push(currentProduct)
+        }
+        await OrderModel.findByIdAndUpdate({ _id: req.body.orderId },
+            {
+                listProducts: listProducts,
+                rejectedList: rejectedList
+            })
+
+        const order2 = await OrderModel.findById(req.body.orderId)
+        res.status(200).json(order2)
+    } catch (error) {
+        console.log(error.message)
+        res.status(500).json({ message: error.message })
+    }
+}
+
+export const deleteProductFromOrder = async (req, res) => {
+    try {
+        let productIndex = null
+        let currentProduct = null
+        const order = await OrderModel.findById(req.body.orderId)
+        let listProducts = order.listProducts
+
+        if (order.status !== 'В ожидании') {
+            return res.status(400).json({ message: 'Заказ можно мзменить только в состоянии Ожидания' })
+        }
+
+        if (order.listProducts.length < 2) {
+            return res.status(400).json({ message: 'Нельзя удалить продукт если в заказе только одна позиция' })
+        }
+        // console.log(listProducts[0].id,req.body.productId)
+        listProducts.forEach((product, index) => {
+            if (product.id === req.body.productId) {
+                if (product.amount === req.body.amount) {
+                    productIndex = index
+                    currentProduct = product
+                }
+            }
+        })
+
+        if (productIndex === null || currentProduct === null) {
+            return res.status(500).json({ message: 'Не удалось удалить продукт из заказа' })
+        }
+        listProducts.splice(productIndex, 1);
+        let rejectedList = order.rejectedList
+        rejectedList.comment = req.body.comment
+        rejectedList.changedBy = {
+            userId: req.userId,
+            userName: req.userName
+        }
+        console.log(rejectedList)
+        rejectedList.push(currentProduct)
+        await OrderModel.findByIdAndUpdate({ _id: req.body.orderId },
+            {
+                listProducts: listProducts,
+                rejectedList: rejectedList,
+            })
+        const order2 = await OrderModel.findById(req.body.orderId)
+        res.status(200).json(order2)
+    } catch (error) {
+        console.log(error.message)
+        res.status(500).json({ message: 'Не удалось удалить продукт из заказа' })
+    }
+}
+
+
+
+function getDate (){
+    // const seoul = moment(1489199400000).tz('Asia/Tashkent');
+    const now = new Date()
+    let S = now.getSeconds()
+    let MN = now.getMinutes()
+    let H = now.getUTCHours() + 5
+    let D = now.getUTCDate()
+    let M = now.getMonth()
+    let Y = now.getFullYear()
+
+    if(S < 10) S = '0' + S
+    if(MN < 10) MN = '0' + MN
+    if(H < 10) H = '0' + H
+    if(D < 10) D = '0' + D
+    if(M < 10) M = '0' + M
+
+    return  `${H}:${MN}:${S} ${D}.${M}.${Y}`
+}
