@@ -65,3 +65,4 @@ export const getFavorites = async (req, res) => {
         res.json({message:error.message})
     }
 }
+

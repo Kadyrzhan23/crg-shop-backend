@@ -8,7 +8,6 @@ const uri = `https://api.telegram.org/bot${token}/sendMessage`
 export const sendMessage = async (req, res) => {
     try {
         const basket = req.order.listProducts
-        console.log(req.userId)
         const user = await UserModel.findById(req.userId)
 
         if (!user) {
@@ -39,16 +38,16 @@ export const sendMessage = async (req, res) => {
             parse_mode: 'html',
             text: message,
         })
-        
         if (request.status === 200) {
-            await OrderModel.findByIdAndUpdate({_id:req.order.id},{
-                telegram:{
-                    chat_id:request.data.result.message_id,
+            await OrderModel.findByIdAndUpdate({ _id: req.order.id }, {
+                telegram: {
+                    message_id: request.data.result.message_id,
                 }
             })
-            res.status(200).json({ 
+            res.status(200).json({
                 message: "Заказ успешно создался",
-            data:request.data.result })
+                data: request.data.result
+            })
         }
     } catch (error) {
         console.log(error.message)
@@ -127,8 +126,7 @@ export const updateStatus = async (req, res) => {
 
 export const updateProductAmountInOrder = async (req, res) => {
     try {
-        console.log(req.body)
-        let currentProduct = null;
+        let currentProduct = {};
         const order = await OrderModel.findById(req.body.orderId)
         if (order.status !== 'В ожидании') {
             return res.status(400).json({ message: 'Заказ можно мзменить только в состоянии Ожидания' })
@@ -137,50 +135,54 @@ export const updateProductAmountInOrder = async (req, res) => {
         listProducts.forEach(product => {
             if (product.id === req.body.productId) {
                 if (product.amount === req.body.currentAmount) {
-                    console.log(product)
-                    currentProduct = product
+                    Object.assign(currentProduct, product)
                     product.amount = req.body.nextAmount
                     req.productWeight = product.weight
                 }
             }
         })
-        if (currentProduct === null) {
+
+        if (!currentProduct.amount) {
             return res.status(400).json({ message: 'Заказ можно мзменить только в состоянии Ожидания' })
         }
+
         if (0 < req.body.currentAmount - req.body.nextAmount) {
+            currentProduct.amount = req.body.currentAmount - req.body.nextAmount
             currentProduct.comment = req.body.comment
             currentProduct.changedBy = {
                 userId: req.userId,
                 userName: req.userName,
-                updated:getDate()
+                updated: getDate()
             }
         }
+
         let rejectedList = order.rejectedList
         let productBool = false
         let productIndex = null
-        rejectedList.forEach((product,index) => {
-            if(product.id === req.body.productId){
-                if (product.weight === req.productWeight){
+        rejectedList.forEach((product, index) => {
+            if (product.id === req.body.productId) {
+                if (product.weight === req.productWeight) {
                     productBool = true
                     productIndex = index
                 }
             }
         })
 
-        if(productBool && productIndex !== null){
-            rejectedList[productIndex].amount = rejectedList[productIndex].amount + (req.body.currentAmount - req.body.nextAmount)
-        }else{
+        if (productBool && productIndex !== null) {
+            rejectedList[productIndex].amount = rejectedList[productIndex].amount + currentProduct.amount
+        } else {
             // currentProduct.amount = req.body.nextAmount - req.body.currentAmount
             rejectedList.push(currentProduct)
         }
         await OrderModel.findByIdAndUpdate({ _id: req.body.orderId },
             {
+                totalPrice: totalCost(listProducts),
                 listProducts: listProducts,
                 rejectedList: rejectedList
             })
 
         const order2 = await OrderModel.findById(req.body.orderId)
-        res.status(200).json(order2)
+        res.status(200).json({ order2 })
     } catch (error) {
         console.log(error.message)
         res.status(500).json({ message: error.message })
@@ -190,10 +192,9 @@ export const updateProductAmountInOrder = async (req, res) => {
 export const deleteProductFromOrder = async (req, res) => {
     try {
         let productIndex = null
-        let currentProduct = null
+        let currentProduct = {}
         const order = await OrderModel.findById(req.body.orderId)
         let listProducts = order.listProducts
-
         if (order.status !== 'В ожидании') {
             return res.status(400).json({ message: 'Заказ можно мзменить только в состоянии Ожидания' })
         }
@@ -206,25 +207,50 @@ export const deleteProductFromOrder = async (req, res) => {
             if (product.id === req.body.productId) {
                 if (product.amount === req.body.amount) {
                     productIndex = index
-                    currentProduct = product
+                    Object.assign(currentProduct, product)
                 }
             }
         })
 
-        if (productIndex === null || currentProduct === null) {
+        console.log(currentProduct)
+
+        if (!currentProduct.amount) {
             return res.status(500).json({ message: 'Не удалось удалить продукт из заказа' })
         }
         listProducts.splice(productIndex, 1);
         let rejectedList = order.rejectedList
-        rejectedList.comment = req.body.comment
-        rejectedList.changedBy = {
-            userId: req.userId,
-            userName: req.userName
+        let productBool = false
+
+
+        rejectedList.map((product, index) => {
+            console.log(product.id,currentProduct.id)
+            if (product.id === currentProduct.id) {
+                if (product.weight === currentProduct.weight) {
+                    productBool = true
+                    productIndex = index
+                }
+            }
+        })
+
+        console.log(productBool)
+        console.log(productIndex)
+
+        if (productBool && productIndex !== null) {
+            rejectedList[productIndex].amount = rejectedList[productIndex].amount + currentProduct.amount
+            rejectedList[productIndex].comment = req.body.comment
+            rejectedList[productIndex].changedBy = {
+                userId: req.userId,
+                userName: req.userName,
+                updated: getDate()
+            }
+        } else {
+            // currentProduct.amount = req.body.nextAmount - req.body.currentAmount
+            rejectedList.push(currentProduct)
+
         }
-        console.log(rejectedList)
-        rejectedList.push(currentProduct)
         await OrderModel.findByIdAndUpdate({ _id: req.body.orderId },
             {
+                totalPrice: totalCost(listProducts),
                 listProducts: listProducts,
                 rejectedList: rejectedList,
             })
@@ -238,7 +264,7 @@ export const deleteProductFromOrder = async (req, res) => {
 
 
 
-function getDate (){
+function getDate() {
     // const seoul = moment(1489199400000).tz('Asia/Tashkent');
     const now = new Date()
     let S = now.getSeconds()
@@ -248,11 +274,38 @@ function getDate (){
     let M = now.getMonth()
     let Y = now.getFullYear()
 
-    if(S < 10) S = '0' + S
-    if(MN < 10) MN = '0' + MN
-    if(H < 10) H = '0' + H
-    if(D < 10) D = '0' + D
-    if(M < 10) M = '0' + M
+    if (S < 10) S = '0' + S
+    if (MN < 10) MN = '0' + MN
+    if (H < 10) H = '0' + H
+    if (D < 10) D = '0' + D
+    if (M < 10) M = '0' + M
 
-    return  `${H}:${MN}:${S} ${D}.${M}.${Y}`
+    return `${H}:${MN}:${S} ${D}.${M}.${Y}`
+}
+
+
+function totalCost(basket) {
+    let total = 0
+    basket.map((product) => {
+        const price = +product.price.split(' ').join('')
+        const amount = +product.amount
+        total = total + (amount * price)
+    })
+    return priceAdjustment(total)
+}
+function priceAdjustment(val) {
+    // console.log(val)
+    let temp = String(val).split('')
+    let str = []
+    temp = temp.reverse()
+    temp.map((item, index) => {
+        if (index === 2 || index === 5 || index === 8) {
+            str.push(item)
+            str.push(' ')
+        } else {
+            str.push(item)
+        }
+    })
+    str = str.reverse().join('')
+    return str
 }

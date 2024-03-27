@@ -11,6 +11,8 @@ export const register = async (req, res) => {
             return res.status(400).json(errors.array())
         }
 
+        console.log(req.body)
+
         const salt = await bcrypt.genSalt(10)
         const passwordHash = await bcrypt.hash(req.body.password, salt)
 
@@ -21,7 +23,7 @@ export const register = async (req, res) => {
             role: req.body.role,
             address: req.body.address,
             telegram: req.body.telegram,
-            avatarUrl: req.body.avaterUrl,
+            avatarUrl: req.body.avatarUrl,
             password: passwordHash
         })
 
@@ -112,7 +114,7 @@ export const getAllUsers = async (req, res) => {
     try {
         const user = await UserModel.findById(req.userId)
 
-        if (!user || user._doc.role !== 'admin') return res.status(404).json({
+        if (!user || user._doc.role !== 'admin') return res.status(403).json({
             message: 'Нет доступа'
         })
 
@@ -124,3 +126,21 @@ export const getAllUsers = async (req, res) => {
         req.status(500).json({message:'Что-то пошло не так'})
     }
 };
+
+export const userLevelUp = async (req,res) => {
+    try {
+        const user = await UserModel.findById(req.body.currentUserId)
+
+        if(!user){
+            res.status(404).json({message:'Пользователь не найден'})
+        }
+
+        await UserModel.findByIdAndUpdate({_id:req.body.currentUserId},{
+            role:"superUser"
+        })
+
+        res.status(200).json({message:'Уровен пользователя поднято'})
+    } catch (error) {
+        res.status(500).json({message:'Что то пошло не так'})
+    }
+}

@@ -51,7 +51,6 @@ app.use('/uploads', express.static('uploads'));
 app.post('/auth/register', registerValidator, UserController.register)
 app.post('/auth/login', loginValidator, UserController.login)
 app.get('/auth/me', checkAuth, UserController.getMe)
-app.post('/get/all-users', checkAuth, UserController.getAllUsers)
 
 //Посты
 app.get('/post/getAll', PostController.getAll)
@@ -63,10 +62,12 @@ app.post('/new-order',checkAuth,OrderController.create,OrderController.sendMessa
 app.get('/get-my-orders',checkAuth,OrderController.getMyOrders)
 
 //Запросы с требованием админских прав
+app.post('/get/all-users', checkAuthAdmin, UserController.getAllUsers)
 app.get('/get-all-orders',checkAuthAdmin,OrderController.getAllOrders)
 app.patch('/order',checkAuthAdmin,OrderController.updateStatus)
 app.patch('/order/product',checkAuthAdmin,OrderController.deleteProductFromOrder)
 app.patch('/order/product/amount',checkAuthAdmin,OrderController.updateProductAmountInOrder)
+app.patch('/user/level-up',checkAuthAdmin ,UserController.userLevelUp)
 
 
 
