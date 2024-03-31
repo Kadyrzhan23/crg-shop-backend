@@ -1,5 +1,8 @@
-import PostModel from '../models/Post.js'
+import PostModel from '../models/Post.js'  
 import { validationResult } from 'express-validator';
+import TeaModel from '../models/Tea.js';
+import mongoose from 'mongoose';
+const  OtherProducts = mongoose.models.post || mongoose.model('Post', OtherProducts);
 
 export const getAll = async (req, res,) => {
     try {
@@ -16,7 +19,7 @@ export const getAll = async (req, res,) => {
     }
 }
 
-export const create = async (req,res)=>{
+export const createCoffe = async (req,res)=>{
     try {
         const errors = validationResult(req)
         if (!errors.isEmpty()) {
@@ -33,15 +36,11 @@ export const create = async (req,res)=>{
             sort:req.body.sort,
             region:req.body.region,
             weight:req.body.weight,
-            descriptors:req.body.descriptors,
-            scaScore:req.body.scaScore,
             roast:req.body.roast,
             scores:req.body.scores,
             acidity:req.body.acidity,
             density:req.body.density,
-            forWhat:req.body.forWhat,
             treatment:req.body.treatment,
-            tags:req.body.tags
         })
         const post = await doc.save()
 
@@ -51,6 +50,50 @@ export const create = async (req,res)=>{
         res.status(500).json({ message: "Не удалось создать пост" })
     }
 }
+
+export const createPostTea = async (req, res) => {
+    try {
+        const doc = new TeaModel({
+            name: req.body.name,
+            description: req.body.description,
+            priceUser: req.body.priceUser,
+            priceWS: req.body.priceWS,
+            img: req.body.img,
+            package: req.body.package,
+            type: req.body.type
+        })
+        console.log(req.body)
+
+        const post = await doc.save()
+
+        res.status(200).json(post)
+    } catch (error) {
+        res.status(500).json({ message: error.message})
+    }
+}
+
+export const createPostOtherProducts = async (req, res) => {
+    try {
+        const doc = new OtherProducts({
+            name: req.body.name,
+            description: req.body.description,
+            priceUser: req.body.priceUser,
+            priceWS: req.body.priceWS,
+            img: req.body.img,
+            type: req.body.type
+        })
+        console.log(req.body)
+
+        const post = await doc.save()
+
+        res.status(200).json(post)
+    } catch (error) {
+        console.log(error.message)
+        res.status(500).json({ message: error.message})
+    }
+}
+
+
 
 export const getFavorites = async (req, res) => {
     try {

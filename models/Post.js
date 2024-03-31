@@ -8,7 +8,6 @@ const PostSchema = new mongoose.Schema({
     },
     description:{
         type:String,
-        required:true,
     },
     priceUser:{
         type:Array,
@@ -38,14 +37,6 @@ const PostSchema = new mongoose.Schema({
         type:Array,
         required:true,
     },
-    descriptors:{
-        type:String,
-        required:true,
-    },
-    scaScore:{
-        type:String,
-        required:true,
-    },
     roast:{
         type:String,
         required:true,
@@ -62,18 +53,13 @@ const PostSchema = new mongoose.Schema({
         type:Number,
         default:0,
     },
-    forWhat:{
-        type:String,
-        // required:true,f
-        default:''
-    },
     treatment:{
         type:String,
         required:true,
     },
     tags:{
-        requires:true,
-        type:Array
+        type:Array,
+        default:[]
     }
 })
 
