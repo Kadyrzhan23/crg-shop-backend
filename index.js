@@ -14,12 +14,13 @@ import checkAuthAdmin from './utils/checkAuthAdmin.js'
 // import ('dotenv').config()
 
 mongoose
-    .connect('mongodb+srv://zarimkofe:wwwwww@cluster0.ddu19sw.mongodb.net/blog?retryWrites=true&w=majority')
-    // .connect('mongodb+srv://zarimkofe:wwwwww@cluster0.ddu19sw.mongodb.net/blog?retryWrites=true&w=majority&ssl=true')
-    .then(() => console.log('Db Ok'))
-    .catch(err => console.log('Error connecting to Db' + err))
+.connect('mongodb+srv://zarimkofe:wwwwww@cluster0.ddu19sw.mongodb.net/blog?retryWrites=true&w=majority')
+// .connect('mongodb+srv://zarimkofe:wwwwww@cluster0.ddu19sw.mongodb.net/blog?retryWrites=true&w=majority&ssl=true')
+.then(() => console.log('Db Ok'))
+.catch(err => console.log('Error connecting to Db' + err))
 
 const app = express()
+app.use(cors());
 
 //Загрузка фото для верификации
 const uploadDir = './uploads'
@@ -43,7 +44,6 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 
-app.use(cors());
 app.use(express.json())
 app.use('/uploads', express.static('uploads'));
 
