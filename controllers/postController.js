@@ -74,6 +74,7 @@ export const createPostTea = async (req, res) => {
 
 export const createPostOtherProducts = async (req, res) => {
     try {
+        console.log('start')
         const doc = new OtherProducts({
             name: req.body.name,
             description: req.body.description,

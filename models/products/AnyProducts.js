@@ -1,6 +1,7 @@
+
 import mongoose from "mongoose";
 
-const TeaSchema = new mongoose.Schema({
+const Otherproducts = new mongoose.Schema({
     name:{
         type:String,
         required:true,
@@ -21,14 +22,10 @@ const TeaSchema = new mongoose.Schema({
         type:Array,
         required:true,
     },
-    package:{
-        type:Array,
-        required:true,
-    },
     type:{
         type:String,
         required:true,
     }
 })
 
-export default mongoose.model('post',TeaSchema);
+export default mongoose.model('post',Otherproducts);
