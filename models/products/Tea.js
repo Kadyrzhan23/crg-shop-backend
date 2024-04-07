@@ -31,4 +31,4 @@ const TeaSchema = new mongoose.Schema({
     }
 })
 
-export default mongoose.model('post',TeaSchema);
+export default mongoose.model('Products',TeaSchema);

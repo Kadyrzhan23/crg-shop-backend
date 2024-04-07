@@ -11,8 +11,6 @@ export const register = async (req, res) => {
             return res.status(400).json(errors.array())
         }
 
-        console.log(req.body)
-
         const salt = await bcrypt.genSalt(10)
         const passwordHash = await bcrypt.hash(req.body.password, salt)
 
@@ -36,7 +34,10 @@ export const register = async (req, res) => {
         res.json({ ...userData, token })
     }
     catch (err) {
-        console.log(err)
+        if(err?.keyPattern?.email){
+            res.status(401).json({message:'Email уже зарегистрирован'})
+            return
+        }
         res.status(500).json({ message: "Не удалось зарегистрироватся" })
     }
 }
@@ -53,7 +54,7 @@ export const login = async (req, res) => {
 
         const isValidPass = await bcrypt.compare(req.body.password, user._doc.password)
         if (!isValidPass) {
-            return res.status(400).json({
+            return res.status(403).json({
                 message: 'Неверный логин или пароль'
             })
         }

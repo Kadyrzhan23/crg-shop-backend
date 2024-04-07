@@ -1,7 +1,7 @@
 
 import mongoose from "mongoose";
 
-const Otherproducts = new mongoose.Schema({
+const AnyProducts = new mongoose.Schema({
     name:{
         type:String,
         required:true,
@@ -28,4 +28,4 @@ const Otherproducts = new mongoose.Schema({
     }
 })
 
-export default mongoose.model('post',Otherproducts);
+export default mongoose.model('Products',AnyProducts);

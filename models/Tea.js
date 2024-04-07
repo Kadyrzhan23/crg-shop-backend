@@ -21,14 +21,14 @@ const TeaSchema = new mongoose.Schema({
         type:Array,
         required:true,
     },
+    type:{
+        type:String,
+        required:true,
+    },
     package:{
         type:Array,
         required:true,
     },
-    type:{
-        type:String,
-        required:true,
-    }
 })
 
 export default mongoose.model('post',TeaSchema);
