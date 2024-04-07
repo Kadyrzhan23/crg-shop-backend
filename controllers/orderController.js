@@ -1,11 +1,10 @@
 import axios from 'axios'
 import UserModel from '../models/User.js'
 import OrderModel from '../models/Order.js'
-import { request } from 'express'
 const token = '6669205103:AAE24RYRkDOPbZ46ygWV6CoZENfXBIiAQi8'
 const chat_id = '-1002066903328'
 const uri = `https://api.telegram.org/bot${token}/sendMessage`
-export const sendMessage = async (req, res) => {
+export const sendMessageTg = async (req, res) => {
     try {
         const basket = req.order.listProducts
         const user = await UserModel.findById(req.userId)

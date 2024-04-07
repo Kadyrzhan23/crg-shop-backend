@@ -5,19 +5,22 @@ import checkAuth from './utils/checkAuth.js'
 import * as UserController from './controllers/userController.js'
 import * as PostController from './controllers/postController.js'
 import * as OrderController from './controllers/orderController.js'
-import { createPostValidation , createPostTeaValidation, createPostOtherValidation} from './validation/Post.js'
+import { createPostValidation, createPostTeaValidation, createPostOtherValidation } from './validation/Post.js'
 import cors from "cors";
 import multer from 'multer';
 import fs from 'fs'
 import path from "path";
 import checkAuthAdmin from './utils/checkAuthAdmin.js'
-// import ('dotenv').config()
+import { sendMessage } from './controllers/tgMessageController.js'
 
 mongoose
-.connect('mongodb+srv://zarimkofe:wwwwww@cluster0.ddu19sw.mongodb.net/blog?retryWrites=true&w=majority')
-// .connect('mongodb+srv://zarimkofe:wwwwww@cluster0.ddu19sw.mongodb.net/blog?retryWrites=true&w=majority&ssl=true')
-.then(() => console.log('Db Ok'))
-.catch(err => console.log('Error connecting to Db' + err))
+    .connect('mongodb+srv://zarimkofe:wwwwww@cluster0.ddu19sw.mongodb.net/blog?retryWrites=true&w=majority')
+    // .connect('mongodb+srv://zarimkofe:wwwwww@cluster0.ddu19sw.mongodb.net/blog?retryWrites=true&w=majority&ssl=true')
+    .then(() => console.log('Db Ok'))
+    .catch(err => {
+        sendMessage(err.message)
+        console.log('Error connecting to Db' + err)
+    })
 
 const app = express()
 
@@ -55,22 +58,22 @@ app.get('/auth/me', checkAuth, UserController.getMe)
 
 //Посты
 app.get('/post/getAll', PostController.getAll)
-app.post('/post/create/coffe',checkAuthAdmin , createPostValidation, PostController.createCoffe)
-app.post('/post/create/tea',checkAuthAdmin , createPostTeaValidation, PostController.createPostTea)
-app.post('/post/create/other',checkAuthAdmin , createPostOtherValidation, PostController.createPostOtherProducts)
-app.post('/post/favorites',PostController.getFavorites)
+app.post('/post/create/coffe', checkAuthAdmin, createPostValidation, PostController.createCoffe)
+app.post('/post/create/tea', checkAuthAdmin, createPostTeaValidation, PostController.createPostTea)
+app.post('/post/create/other', checkAuthAdmin, createPostOtherValidation, PostController.createPostOtherProducts)
+app.post('/post/favorites', PostController.getFavorites)
 
 //Заказы
-app.post('/new-order',checkAuth,OrderController.create,OrderController.sendMessage)
-app.get('/get-my-orders',checkAuth,OrderController.getMyOrders)
+app.post('/new-order', checkAuth, OrderController.create, OrderController.sendMessageTg)
+app.get('/get-my-orders', checkAuth, OrderController.getMyOrders)
 
 //Запросы с требованием админских прав
 app.post('/get/all-users', checkAuthAdmin, UserController.getAllUsers)
-app.patch('/user/level-up',checkAuthAdmin ,UserController.userLevelUp)
-app.get('/get-all-orders',checkAuthAdmin,OrderController.getAllOrders)
-app.patch('/order',checkAuthAdmin,OrderController.updateStatus)
-app.patch('/order/product',checkAuthAdmin,OrderController.deleteProductFromOrder)
-app.patch('/order/product/amount',checkAuthAdmin,OrderController.updateProductAmountInOrder)
+app.patch('/user/level-up', checkAuthAdmin, UserController.userLevelUp)
+app.get('/get-all-orders', checkAuthAdmin, OrderController.getAllOrders)
+app.patch('/order', checkAuthAdmin, OrderController.updateStatus)
+app.patch('/order/product', checkAuthAdmin, OrderController.deleteProductFromOrder)
+app.patch('/order/product/amount', checkAuthAdmin, OrderController.updateProductAmountInOrder)
 
 
 
@@ -82,9 +85,10 @@ app.post('/upload', upload.single('image'), (req, res) => {
             return res.status(400).json({ error: 'No image uploaded.' });
         }
 
-        const filePath = path.join(uploadDir,req.filename,);
+        const filePath = path.join(uploadDir, req.filename,);
         res.json({ imagePath: filePath });
     } catch (error) {
+        sendMessage(error)
         console.error('Error uploading image:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
@@ -94,6 +98,6 @@ app.listen(4444, (err) => {
     if (err) {
         return console.log(err)
     }
-    
+
     console.log('Server Ok')
 })
