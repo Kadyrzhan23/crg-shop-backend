@@ -34,8 +34,8 @@ export const register = async (req, res) => {
         res.json({ ...userData, token })
     }
     catch (err) {
-        if(err?.keyPattern?.email){
-            res.status(401).json({message:'Email уже зарегистрирован'})
+        if (err?.keyPattern?.email) {
+            res.status(401).json({ message: 'Email уже зарегистрирован' })
             return
         }
         res.status(500).json({ message: "Не удалось зарегистрироватся" })
@@ -120,28 +120,45 @@ export const getAllUsers = async (req, res) => {
         })
 
         const allUsers = await UserModel.find()
-        if(!allUsers) throw new Error('Произошло ошибка или нет зарегистрированных пользователей')
+        if (!allUsers) throw new Error('Произошло ошибка или нет зарегистрированных пользователей')
 
         res.status(200).json(allUsers)
     } catch (error) {
-        req.status(500).json({message:'Что-то пошло не так'})
+        req.status(500).json({ message: 'Что-то пошло не так' })
     }
 };
 
-export const userLevelUp = async (req,res) => {
+export const userLevelUp = async (req, res) => {
     try {
         const user = await UserModel.findById(req.body.currentUserId)
 
-        if(!user){
-            res.status(404).json({message:'Пользователь не найден'})
+        if (!user) {
+            res.status(404).json({ message: 'Пользователь не найден' })
         }
 
-        await UserModel.findByIdAndUpdate({_id:req.body.currentUserId},{
-            role:"superUser"
+        await UserModel.findByIdAndUpdate({ _id: req.body.currentUserId }, {
+            role: "superUser"
         })
 
-        res.status(200).json({message:'Уровен пользователя поднято'})
+        res.status(200).json({ message: 'Уровен пользователя поднято' })
     } catch (error) {
-        res.status(500).json({message:'Что то пошло не так'})
+        res.status(500).json({ message: 'Что то пошло не так' })
+    }
+}
+
+export const getUserInfo = async (req, res) => {
+    try {
+        const id = req.params.id
+
+        const user = await UserModel.findById(id)
+
+        if (!user) {
+            res.status(404).json({ message: 'User not found' })
+        }
+        const {password , ...info} = user._doc
+        res.status(200).json(info)
+    } catch (err) {
+        console.log(err.message)
+        res.status(500).json({ message: err.message })
     }
 }

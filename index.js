@@ -74,6 +74,10 @@ app.get('/get-all-orders', checkAuthAdmin, OrderController.getAllOrders)
 app.patch('/order', checkAuthAdmin, OrderController.updateStatus)
 app.patch('/order/product', checkAuthAdmin, OrderController.deleteProductFromOrder)
 app.patch('/order/product/amount', checkAuthAdmin, OrderController.updateProductAmountInOrder)
+app.get('/user/:id', checkAuthAdmin, UserController.getUserInfo)
+app.get('/user-orders/:userId', checkAuthAdmin, OrderController.getUserOrders)
+
+
 
 
 

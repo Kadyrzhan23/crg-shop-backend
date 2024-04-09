@@ -85,7 +85,6 @@ export const getMyOrders = async (req, res) => {
     }
 };
 
-
 export const getAllOrders = async (req, res) => {
     try {
         const user = await UserModel.findById(req.userId)
@@ -258,6 +257,23 @@ export const deleteProductFromOrder = async (req, res) => {
     } catch (error) {
         console.log(error.message)
         res.status(500).json({ message: 'Не удалось удалить продукт из заказа' })
+    }
+}
+
+export const getUserOrders = async (req, res) => {
+    try {
+        const id = req.params.userId
+        const userOrders = await OrderModel.find({userId: id})
+
+        if(!userOrders){
+            console.log(userOrders)
+            return res.status(404).json({message: 'User not found'})
+        }
+
+        return res.status(200).json(userOrders)
+    } catch (error) {
+        console.log(error.message)
+        res.status(500).json({message: error.message})
     }
 }
 
