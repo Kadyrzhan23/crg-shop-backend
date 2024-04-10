@@ -16,9 +16,11 @@ import { sendMessage } from './controllers/tgMessageController.js'
 mongoose
     .connect('mongodb+srv://zarimkofe:wwwwww@cluster0.ddu19sw.mongodb.net/blog?retryWrites=true&w=majority')
     // .connect('mongodb+srv://zarimkofe:wwwwww@cluster0.ddu19sw.mongodb.net/blog?retryWrites=true&w=majority&ssl=true')
-    .then(() => console.log('Db Ok'))
-    .catch(err => {
+    .then(() => {
         sendMessage('Db connect')
+        console.log('Db Ok')
+    })
+    .catch(err => {
         sendMessage(err.message)
         console.log('Error connecting to Db' + err)
     })
