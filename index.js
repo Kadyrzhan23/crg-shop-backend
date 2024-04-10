@@ -18,6 +18,7 @@ mongoose
     // .connect('mongodb+srv://zarimkofe:wwwwww@cluster0.ddu19sw.mongodb.net/blog?retryWrites=true&w=majority&ssl=true')
     .then(() => console.log('Db Ok'))
     .catch(err => {
+        sendMessage('Db connect')
         sendMessage(err.message)
         console.log('Error connecting to Db' + err)
     })
