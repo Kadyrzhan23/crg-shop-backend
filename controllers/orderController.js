@@ -21,6 +21,7 @@ export const sendMessageTg = async (req, res) => {
         message += `<a href="tel:${user._doc.phoneNumber}">Номер телефона: </a>${user._doc.phoneNumber}\n`
         message += `<b>Id заказа: </b>${req.order.id}\n`
         message += `<b>Статус клиента: </b>${user._doc.role}\n`
+        message += `<b>Способ оплаты: </b>${req.body.paymentMethod}\n`
         message += `<b>Заказ</b>\n`
         basket.map((product, index) => {
             message += `${product.name}: ${product.amount} * ${product.price}\n`
