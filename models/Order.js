@@ -40,6 +40,10 @@ const OrderSchema = new mongoose.Schema({
     telegram:{
         type:Object,
         default: {},
+    },
+    paymentMethod:{
+        type:String,
+        required: true,
     }
 
 },

@@ -63,7 +63,8 @@ export const create = async (req, res, next) => {
             listProducts: basket,
             creationDate: getDate(),
             comment: req.body.comment,
-            totalPrice: req.body.totalPrice
+            totalPrice: req.body.totalPrice,
+            paymentMethod: req.body.paymentMethod
         })
 
         const order = await doc.save()
