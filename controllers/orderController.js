@@ -326,3 +326,8 @@ function priceAdjustment(val) {
     str = str.reverse().join('')
     return str
 }
+
+async function orderNumber (type){
+    // const types = ['coffe-beans','tea','syrup','accessory','chemistry','coffee-capsule']
+    
+}

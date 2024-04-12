@@ -7,7 +7,7 @@ export const registerValidator = [
     body('password','Пароль должен быть минимум 6 символов').isLength({min:6}),
     body('role','').optional().isString(),
     body('address','Адресс поместите в массив').isArray(),
-    body('telegram','Некорректная ссылка на телеграм').optional().isURL(),
+    body('telegram','Некорректная ссылка на телеграм').optional().isString(),
     body('avatarUrl','Некорректная ссылка на аватарку').optional(),
 ]
 
