@@ -44,12 +44,7 @@ const OrderSchema = new mongoose.Schema({
     paymentMethod:{
         type:String,
         required: true,
-    },
-    orderNumber:{
-        type:Number,
-        required: true,
     }
-
 },
     {
         timestamps: true,

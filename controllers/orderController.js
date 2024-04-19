@@ -20,11 +20,15 @@ export const sendMessageTg = async (req, res) => {
         message += `<b>Клиент: </b>${user._doc.name}\n`
         message += `<a href="tel:${user._doc.phoneNumber}">Номер телефона: </a>${user._doc.phoneNumber}\n`
         message += `<b>Id заказа: </b>${req.order.id}\n`
-        message += `<b>Статус клиента: </b>${user._doc.role}\n`
+        message += `<b>Статус клиента: </b>${user._doc.role === 'user' ? 'Розница' : 'Оптовик'}\n`
         message += `<b>Способ оплаты: </b>${req.body.paymentMethod}\n`
+        message += `/n`
         message += `<b>Заказ</b>\n`
         basket.map((product, index) => {
-            message += `${product.name}: ${product.amount} * ${product.price}\n`
+            message += `${product.name} (${product.roast})\n`
+            message += `Вес:${product.weight}`
+            message += `Кол-во:${product.weight}`
+            message += `Помол:${product.pomol}`
             const price = +product.price.split(' ').join('')
             const amount = product.amount
             totalCost += amount * price
@@ -73,8 +77,10 @@ export const create = async (req, res, next) => {
         next()
     } catch (error) {
 
-        res.status(500).json({ message: 'Ошибка при создание заказа' ,
-        doc:error.message})
+        res.status(500).json({
+            message: 'Ошибка при создание заказа',
+            doc: error.message
+        })
     }
 };
 
@@ -225,7 +231,7 @@ export const deleteProductFromOrder = async (req, res) => {
 
 
         rejectedList.map((product, index) => {
-            console.log(product.id,currentProduct.id)
+            console.log(product.id, currentProduct.id)
             if (product.id === currentProduct.id) {
                 if (product.weight === currentProduct.weight) {
                     productBool = true
@@ -267,17 +273,17 @@ export const deleteProductFromOrder = async (req, res) => {
 export const getUserOrders = async (req, res) => {
     try {
         const id = req.params.userId
-        const userOrders = await OrderModel.find({userId: id})
+        const userOrders = await OrderModel.find({ userId: id })
 
-        if(!userOrders){
+        if (!userOrders) {
             console.log(userOrders)
-            return res.status(404).json({message: 'User not found'})
+            return res.status(404).json({ message: 'User not found' })
         }
 
         return res.status(200).json(userOrders)
     } catch (error) {
         console.log(error.message)
-        res.status(500).json({message: error.message})
+        res.status(500).json({ message: error.message })
     }
 }
 
@@ -329,7 +335,7 @@ function priceAdjustment(val) {
     return str
 }
 
-async function orderNumber (type){
+async function orderNumber(type) {
     // const types = ['coffe-beans','tea','syrup','accessory','chemistry','coffee-capsule']
-    
+
 }
