@@ -26,9 +26,9 @@ export const sendMessageTg = async (req, res) => {
         message += `<b>Заказ</b>\n`
         basket.map((product, index) => {
             message += `${product.name} (${product.roast})\n`
-            message += `Вес:${product.weight}`
-            message += `Кол-во:${product.weight}`
-            message += `Помол:${product.pomol}`
+            message += `Вес:${product.weight}\n`
+            message += `Кол-во:${product.weight}\n`
+            message += `Помол:${product.pomol}\n`
             message += `\n`
             const price = +product.price.split(' ').join('')
             const amount = product.amount
