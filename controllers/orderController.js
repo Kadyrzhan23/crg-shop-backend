@@ -72,7 +72,9 @@ export const create = async (req, res, next) => {
         req.order = order
         next()
     } catch (error) {
-        res.status(500).json({ message: 'Ошибка при создание заказа' })
+
+        res.status(500).json({ message: 'Ошибка при создание заказа' ,
+        doc:error.message})
     }
 };
 
