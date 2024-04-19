@@ -15,7 +15,7 @@ export const sendMessageTg = async (req, res) => {
             })
         }
 
-        let totalCost = 0
+        let totalCost = 0  
         let message = `<b>${user._doc.role === 'user' ? 'Розница' : 'ОПТ'}</b>\n`
         message += `<b>Статус клиента: </b>${user._doc.role === 'user' ? 'Розница' : 'ОПТ'}\n`
         message += `<b>Клиент: </b>${user._doc.name}\n`
