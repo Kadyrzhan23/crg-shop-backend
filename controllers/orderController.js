@@ -22,13 +22,14 @@ export const sendMessageTg = async (req, res) => {
         message += `<b>Id заказа: </b>${req.order.id}\n`
         message += `<b>Статус клиента: </b>${user._doc.role === 'user' ? 'Розница' : 'Оптовик'}\n`
         message += `<b>Способ оплаты: </b>${req.body.paymentMethod}\n`
-        message += `/n`
+        message += `\n`
         message += `<b>Заказ</b>\n`
         basket.map((product, index) => {
             message += `${product.name} (${product.roast})\n`
             message += `Вес:${product.weight}`
             message += `Кол-во:${product.weight}`
             message += `Помол:${product.pomol}`
+            message += `\n`
             const price = +product.price.split(' ').join('')
             const amount = product.amount
             totalCost += amount * price
