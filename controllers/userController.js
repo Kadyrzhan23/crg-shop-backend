@@ -155,10 +155,35 @@ export const getUserInfo = async (req, res) => {
         if (!user) {
             res.status(404).json({ message: 'User not found' })
         }
-        const {password , ...info} = user._doc
+        const { password, ...info } = user._doc
         res.status(200).json(info)
     } catch (err) {
         console.log(err.message)
         res.status(500).json({ message: err.message })
+    }
+}
+
+export const update = async (req, res) => {
+    try {
+        const user = await UserModel.findById(req.userId)
+
+        if (!user) {
+            res.status(404).json({
+                message: 'Пользователь не найден или ваш аккаунт заблокирован'
+            })
+        }
+
+        const response = await UserModel.findByIdAndUpdate({ _id: req.userId }, {
+            name: req.body.name !== '' ? req.body.name : user.name,
+            email: req.body.email !== '' ? req.body.email : user.email,
+            phoneNumber: req.body.phoneNumber !== '' ? req.body.phoneNumber : user.phoneNumber,
+            telegram: req.body.telegram !== '' ? req.body.telegram : user.telegram,
+            address: req.body.address !== '' ? req.body.address : user.address,
+            avatarUrl: req.body.avatarUrl !== '' ? req.body.avatarUrl : user.avatarUrl
+        })
+        res.status(200).json(response )
+
+    } catch (e) {
+        res.status(500).json({ message: 'Ошибка на сервере' })
     }
 }

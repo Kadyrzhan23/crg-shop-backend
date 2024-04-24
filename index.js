@@ -14,8 +14,9 @@ import checkAuthAdmin from './utils/checkAuthAdmin.js'
 import { sendMessage } from './controllers/tgMessageController.js'
 
 mongoose
-    .connect('mongodb+srv://zarimkofe:wwwwww@cluster0.ddu19sw.mongodb.net/blog?retryWrites=true&w=majority')
-    // .connect('mongodb+srv://zarimkofe:wwwwww@cluster0.ddu19sw.mongodb.net/blog?retryWrites=true&w=majority&ssl=true')
+    // .connect('mongodb+srv://zarimkofe:wwwwww@cluster0.ddu19sw.mongodb.net/blog?retryWrites=true&w=majority')
+    .connect('mongodb+srv://zarimkofe:wwwwww@cluster0.ddu19sw.mongodb.net/blog?retryWrites=true&w=majority&ssl=true')
+    // .connect("mongodb+srv://admin:wwwwww@cluster0.uxnwna5.mongodb.net/blog?retryWrites=true&w=majority")
     .then(() => {
         // sendMessage('Db connect')
         console.log('Db Ok')
@@ -58,6 +59,7 @@ app.use('/uploads', express.static('uploads'));
 app.post('/auth/register', registerValidator, UserController.register)
 app.post('/auth/login', loginValidator, UserController.login)
 app.get('/auth/me', checkAuth, UserController.getMe)
+app.patch('/update-user-data',checkAuth , UserController.update)
 
 //Посты
 app.get('/post/getAll', PostController.getAll)
@@ -101,7 +103,7 @@ app.post('/upload', upload.single('image'), (req, res) => {
     }
 });
 
-app.listen( process.env.PORT || 4443, (err) => {
+app.listen( process.env.PORT || 4444, (err) => {
     if (err) {
         return console.log(err)
     }
