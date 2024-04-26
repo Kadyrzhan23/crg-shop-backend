@@ -1,7 +1,6 @@
 import bcrypt from 'bcrypt'
 import { validationResult } from 'express-validator'
 import UserModel from '../models/User.js'
-import UserTestModel from '../models/Test3UserModel.js'
 import jwt from 'jsonwebtoken'
 
 
