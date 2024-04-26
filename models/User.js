@@ -36,7 +36,7 @@ const UserSchema = new mongoose.Schema({
     },
     organization:{
         type:String,
-        default:''
+        default:[]
     },
     isActive:{
         type:Boolean,
