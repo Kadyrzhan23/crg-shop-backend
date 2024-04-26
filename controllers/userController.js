@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt'
 import { validationResult } from 'express-validator'
 import UserModel from '../models/User.js'
+import UserTestModel from '../models/Test3UserModel.js'
 import jwt from 'jsonwebtoken'
 
 
@@ -14,16 +15,28 @@ export const register = async (req, res) => {
         const salt = await bcrypt.genSalt(10)
         const passwordHash = await bcrypt.hash(req.body.password, salt)
 
-        const doc = new UserModel({
+        const regexp = /\+998/
+        const bool = regexp.test(req.body.phoneNumber)
+        const phoneNumber = bool ? req.body.phoneNumber : `+998${req.body.phoneNumber}`
+
+        if(!bool && req.body.phoneNumber.length !== 9){
+            res.status(401).json({message: 'Invalid phone number'})
+        }
+        // console.log(req.body)
+
+        let doc = new UserModel({
             name: req.body.name,
-            email: req.body.email,
-            phoneNumber: req.body.phoneNumber,
+            phoneNumber: phoneNumber,
             role: req.body.role,
             address: req.body.address,
             telegram: req.body.telegram,
             avatarUrl: req.body.avatarUrl,
             password: passwordHash
         })
+        // console.log(req.body.hasOwnProperty("email"))
+        if(req.body.hasOwnProperty("email")) doc.email = req.body.email
+        else doc.email = `default:${+new Date()}`
+        console.log(doc)
 
         const user = await doc.save()
         const { password, ...userData } = user._doc
@@ -34,8 +47,13 @@ export const register = async (req, res) => {
         res.json({ ...userData, token })
     }
     catch (err) {
+        console.log(err)
         if (err?.keyPattern?.email) {
             res.status(401).json({ message: 'Email уже зарегистрирован' })
+            return
+        }
+        if (err?.keyPattern?.phoneNumber) {
+            res.status(401).json({ message: 'Указанный номер уже зарегистрирован' })
             return
         }
         res.status(500).json({ message: "Не удалось зарегистрироватся" })
@@ -181,9 +199,35 @@ export const update = async (req, res) => {
             address: req.body.address !== '' ? req.body.address : user.address,
             avatarUrl: req.body.avatarUrl !== '' ? req.body.avatarUrl : user.avatarUrl
         })
-        res.status(200).json(response )
+        res.status(200).json(response)
 
     } catch (e) {
         res.status(500).json({ message: 'Ошибка на сервере' })
+    }
+}
+
+export const block = async (req, res) => {
+    try {
+        console.log(req.body)
+        await UserModel.findByIdAndUpdate({ _id: req.body.user }, {
+            isActive: false
+        })
+
+        res.status(200).json({ message: 'Статус успешно обновлён' })
+    } catch (error) {
+        res.status(500).json({ message: 'Что-то пошло не так' })
+        // console.log(error)
+    }
+}
+
+export const unlock = async (req, res) => {
+    try {
+        await UserModel.findByIdAndUpdate({ _id: req.body.user }, {
+            isActive: true
+        })
+
+        res.status(200).json({ message: 'Статус успешно обновлён' })
+    } catch (error) {
+        res.status(500).json({ message: 'Что-то пошло не так' })
     }
 }

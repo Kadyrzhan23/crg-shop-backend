@@ -5,12 +5,12 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    email: {
+    email:{
+        unique: true,
         type: String,
-        required: true,
-        unique: true
     },
     phoneNumber: {
+        unique: true,
         type: String,
         required: true
     },
@@ -41,6 +41,10 @@ const UserSchema = new mongoose.Schema({
     isActive:{
         type:Boolean,
         default:true
+    },
+    manager:{
+        type:String,
+        default:''
     }
 },
     {
@@ -48,3 +52,4 @@ const UserSchema = new mongoose.Schema({
     }
 )
 export default mongoose.model('User', UserSchema);
+ 
