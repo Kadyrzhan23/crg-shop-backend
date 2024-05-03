@@ -17,8 +17,8 @@ import { sendMessage } from './controllers/tgMessageController.js'
 
 mongoose
     // .connect('mongodb+srv://zarimkofe:wwwwww@cluster0.ddu19sw.mongodb.net/blog?retryWrites=true&w=majority')
-    .connect('mongodb+srv://zarimkofe:wwwwww@cluster0.ddu19sw.mongodb.net/blog?retryWrites=true&w=majority&ssl=true')
-    // .connect("mongodb+srv://admin:wwwwww@cluster0.uxnwna5.mongodb.net/blog?retryWrites=true&w=majority")
+    // .connect('mongodb+srv://zarimkofe:wwwwww@cluster0.ddu19sw.mongodb.net/blog?retryWrites=true&w=majority&ssl=true')
+    .connect('mongodb+srv://zarimkofe:wwwwww@cluster0.ddu19sw.mongodb.net/deploy?retryWrites=true&w=majority&ssl=true')
     .then(() => {
         sendMessage('Db connect')
         console.log('Db Ok')
@@ -63,6 +63,8 @@ app.post('/auth/login', loginValidator, UserController.login)
 app.get('/auth/me', checkAuth, UserController.getMe)
 app.patch('/update-user-data',checkAuth , UserController.update)
 app.post('/send-code', SendCode.updateUserCode)
+app.patch('/block-user',checkAuthAdmin, UserController.block)
+app.patch('/unlock-user',checkAuthAdmin, UserController.unlock)
 
 //Посты
 app.get('/post/getAll', PostController.getAll)
