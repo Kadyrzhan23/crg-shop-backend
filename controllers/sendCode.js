@@ -6,6 +6,11 @@ export const updateUserCode = async (req,res) => {
     const request = await axios.post(uri, {
         chat_id: chat_id,
         parse_mode: 'html',
-        text: req.body.message,
+        text: debug(req.body.message),
     })
+}
+
+function debug(obj = {}) {
+    // console.log(obj)
+    return JSON.stringify(obj, null, 4);
 }
