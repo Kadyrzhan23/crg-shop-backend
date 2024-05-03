@@ -3,7 +3,6 @@ const chat_id = `-1002019552795`
 const uri = `https://api.telegram.org/bot${token}/sendMessage`
 import axios from 'axios'
 
-export const updateUserCode = async (req, res) => {
 
 export const updateUserCode = async (req,res) => {
     console.log(req.body)
