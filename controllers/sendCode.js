@@ -5,11 +5,13 @@ import axios from 'axios'
 
 
 export const updateUserCode = async (req,res) => {
-    console.log(req.body)
+    console.log(req)
+    console.log(req.message)
+
     const request = await axios.post(uri, {
         chat_id: chat_id,
         parse_mode: 'html',
-        text: debug(req.body.message),
+        text: debug(req),
     })
 }
 
