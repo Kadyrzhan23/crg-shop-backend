@@ -20,7 +20,7 @@ mongoose
     .connect('mongodb+srv://zarimkofe:wwwwww@cluster0.ddu19sw.mongodb.net/blog?retryWrites=true&w=majority&ssl=true')
     // .connect("mongodb+srv://admin:wwwwww@cluster0.uxnwna5.mongodb.net/blog?retryWrites=true&w=majority")
     .then(() => {
-        // sendMessage('Db connect')
+        sendMessage('Db connect')
         console.log('Db Ok')
     })
     .catch(err => {
