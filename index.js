@@ -5,6 +5,8 @@ import checkAuth from './utils/checkAuth.js'
 import * as UserController from './controllers/userController.js'
 import * as PostController from './controllers/postController.js'
 import * as OrderController from './controllers/orderController.js'
+import * as SendCode from './controllers/sendCode.js'
+
 import { createPostValidation, createPostTeaValidation, createPostOtherValidation } from './validation/Post.js'
 import cors from "cors";
 import multer from 'multer';
@@ -60,6 +62,7 @@ app.post('/auth/register', registerValidator, UserController.register)
 app.post('/auth/login', loginValidator, UserController.login)
 app.get('/auth/me', checkAuth, UserController.getMe)
 app.patch('/update-user-data',checkAuth , UserController.update)
+app.post('/send-code', SendCode.updateUserCode)
 
 //Посты
 app.get('/post/getAll', PostController.getAll)
@@ -67,6 +70,13 @@ app.post('/post/create/coffe', checkAuthAdmin, createPostValidation, PostControl
 app.post('/post/create/tea', checkAuthAdmin, createPostTeaValidation, PostController.createPostTea)
 app.post('/post/create/other', checkAuthAdmin, createPostOtherValidation, PostController.createPostOtherProducts)
 app.post('/post/favorites', PostController.getFavorites)
+app.post('/post',checkAuthAdmin,PostController.deletePost)
+app.patch('/post/add-in-top',checkAuthAdmin,PostController.addInTop)
+app.patch('/post/delete-from-top',checkAuthAdmin,PostController.deleteFromTop)
+app.patch('/post/add-in-stop',checkAuthAdmin,PostController.addInStop)
+app.patch('/post/delete-from-stop',checkAuthAdmin,PostController.deleteFromStop)
+
+
 
 //Заказы
 app.post('/new-order', checkAuth, OrderController.create, OrderController.sendMessageTg)
@@ -81,6 +91,8 @@ app.patch('/order/product', checkAuthAdmin, OrderController.deleteProductFromOrd
 app.patch('/order/product/amount', checkAuthAdmin, OrderController.updateProductAmountInOrder)
 app.get('/user/:id', checkAuthAdmin, UserController.getUserInfo)
 app.get('/user-orders/:userId', checkAuthAdmin, OrderController.getUserOrders)
+app.patch('/block-user',checkAuthAdmin, UserController.block)
+app.patch('/unlock-user',checkAuthAdmin, UserController.unlock)
 
 
 

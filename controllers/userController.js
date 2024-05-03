@@ -187,3 +187,29 @@ export const update = async (req, res) => {
         res.status(500).json({ message: 'Ошибка на сервере' })
     }
 }
+
+export const block = async (req, res) => {
+    try {
+        console.log(req.body)
+        await UserModel.findByIdAndUpdate({ _id: req.body.user }, {
+            isActive: false
+        })
+
+        res.status(200).json({ message: 'Статус успешно обновлён' })
+    } catch (error) {
+        res.status(500).json({ message: 'Что-то пошло не так' })
+        // console.log(error)
+    }
+}
+
+export const unlock = async (req, res) => {
+    try {
+        await UserModel.findByIdAndUpdate({ _id: req.body.user }, {
+            isActive: true
+        })
+
+        res.status(200).json({ message: 'Статус успешно обновлён' })
+    } catch (error) {
+        res.status(500).json({ message: 'Что-то пошло не так' })
+    }
+}

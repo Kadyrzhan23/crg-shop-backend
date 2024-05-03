@@ -29,6 +29,10 @@ const TeaSchema = new mongoose.Schema({
         type:Array,
         required:true,
     },
+    tags:{
+        type:Array,
+        required:true,
+    }
 })
 
 export default mongoose.model('post',TeaSchema);
