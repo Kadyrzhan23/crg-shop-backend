@@ -57,9 +57,17 @@ const PostSchema = new mongoose.Schema({
         type:String,
         required:true,
     },
+    topList:{
+        type:Boolean,
+        default:false,
+    },
+    stopList:{
+        type:Boolean,
+        default:false,
+    },
     tags:{
         type:Array,
-        default:[]
+        required:true,
     }
 })
 

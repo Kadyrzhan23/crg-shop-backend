@@ -1,15 +1,15 @@
-import PostModel from '../models/Post.js'  
+import PostModel from '../models/Post.js'
 import { validationResult } from 'express-validator';
 import TeaModel from '../models/Tea.js';
 import mongoose from 'mongoose';
-const  OtherProducts = mongoose.models.post || mongoose.model('Post', OtherProducts);
+const AnyModel = mongoose.models.post || mongoose.models('Post',AnySchema)
 
 export const getAll = async (req, res,) => {
     try {
         const data = await PostModel.find()
-        if(!data){
+        if (!data) {
             return res.status(400).json({
-                message:'Не удалось получить статьи'
+                message: 'Не удалось получить статьи'
             })
         }
         res.status(200).json(data)
@@ -19,7 +19,8 @@ export const getAll = async (req, res,) => {
     }
 }
 
-export const createCoffe = async (req,res)=>{
+
+export const createCoffe = async (req, res) => {
     try {
         const errors = validationResult(req)
         if (!errors.isEmpty()) {
@@ -27,20 +28,21 @@ export const createCoffe = async (req,res)=>{
         }
 
         const doc = new PostModel({
-            name:req.body.name,
-            description:req.body.description,
-            priceUser:req.body.priceUser,
-            priceWS:req.body.priceWS,
-            img:req.body.img,
-            type:req.body.type,
-            sort:req.body.sort,
-            region:req.body.region,
-            weight:req.body.weight,
-            roast:req.body.roast,
-            scores:req.body.scores,
-            acidity:req.body.acidity,
-            density:req.body.density,
-            treatment:req.body.treatment,
+            name: req.body.name,
+            description: req.body.description,
+            priceUser: req.body.priceUser,
+            priceWS: req.body.priceWS,
+            img: req.body.img,
+            type: req.body.type,
+            sort: req.body.sort,
+            region: req.body.region,
+            weight: req.body.weight,
+            roast: req.body.roast,
+            scores: req.body.scores,
+            acidity: req.body.acidity,
+            density: req.body.density,
+            treatment: req.body.treatment,
+            tags:req.body.tags
         })
         const post = await doc.save()
 
@@ -53,6 +55,7 @@ export const createCoffe = async (req,res)=>{
 
 export const createPostTea = async (req, res) => {
     try {
+        // console.log(req.body)
         const doc = new TeaModel({
             name: req.body.name,
             description: req.body.description,
@@ -60,7 +63,8 @@ export const createPostTea = async (req, res) => {
             priceWS: req.body.priceWS,
             img: req.body.img,
             package: req.body.package,
-            type: req.body.type
+            type: req.body.type,
+            tags:req.body.tags
         })
         console.log(req.body)
 
@@ -68,20 +72,20 @@ export const createPostTea = async (req, res) => {
 
         res.status(200).json(post)
     } catch (error) {
-        res.status(500).json({ message: error.message})
+        res.status(500).json({ message: error.message })
     }
 }
 
 export const createPostOtherProducts = async (req, res) => {
     try {
-        console.log('start')
-        const doc = new OtherProducts({
+        const doc = new AnyModel({
             name: req.body.name,
             description: req.body.description,
             priceUser: req.body.priceUser,
             priceWS: req.body.priceWS,
             img: req.body.img,
-            type: req.body.type
+            type: req.body.type,
+            tags:req.body.tags
         })
         console.log(req.body)
 
@@ -90,7 +94,7 @@ export const createPostOtherProducts = async (req, res) => {
         res.status(200).json(post)
     } catch (error) {
         console.log(error.message)
-        res.status(500).json({ message: error.message})
+        res.status(500).json({ message: error.message })
     }
 }
 
@@ -101,12 +105,87 @@ export const getFavorites = async (req, res) => {
         const params = req.body.params
         let temp = [];
         params.map((key) => {
-            temp.push({_id:(key)})
+            temp.push({ _id: (key) })
         })
-        const posts = await PostModel.find({ $or: temp})
+        const posts = await PostModel.find({ $or: temp })
         res.json(posts)
     } catch (error) {
-        res.json({message:error.message})
+        res.json({ message: error.message })
     }
 }
 
+
+export const addInTop = async (req, res) => {
+    try {
+        await PostModel.findByIdAndUpdate({ _id: req.body.postId }, {
+            topList: true
+        })
+
+        const posts = await PostModel.find()
+
+        res.status(200).json(posts)
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ message: error.message })
+    }
+}
+
+export const deleteFromTop = async (req, res) => {
+    try {
+        const post = await PostModel.findById({ _id: req.body.postId })
+        const topList = await PostModel.find({tags:['топ']});
+        let tags = post.tags
+
+        await PostModel.findByIdAndUpdate({ _id: req.body.postId }, {
+           topList:false
+        })
+
+        const posts = await PostModel.find()
+
+        res.status(200).json(posts)
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ message: error.message })
+    }
+}
+
+export const addInStop = async (req, res) => {
+    try {
+        await PostModel.findByIdAndUpdate({ _id: req.body.postId }, {
+            stopList: true
+        })
+
+        const posts = await PostModel.find()
+
+        res.status(200).json(posts)
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ message: error.message })
+    }
+}
+
+export const deleteFromStop = async (req, res) => {
+    try {
+        await PostModel.findByIdAndUpdate({ _id: req.body.postId }, {
+           stopList:false
+        })
+
+        const posts = await PostModel.find()
+
+        res.status(200).json(posts)
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ message: error.message })
+    }
+}
+
+export const deletePost = async (req, res) => {
+    try {
+        await PostModel.findByIdAndDelete({ _id: req.body.postId })
+        const posts = await PostModel.find()
+        res.status(200).json(posts)
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ error: error.message })
+    }
+}
