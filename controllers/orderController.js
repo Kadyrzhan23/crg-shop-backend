@@ -2,7 +2,8 @@ import axios from 'axios'
 import UserModel from '../models/User.js'
 import OrderModel from '../models/Order.js'
 const token = '6669205103:AAE24RYRkDOPbZ46ygWV6CoZENfXBIiAQi8'
-const chat_id = '-1002066903328'
+const chat_id = `-1002085755553`
+const chat_id_users = '-1002066903328'
 const uri = `https://api.telegram.org/bot${token}/sendMessage`
 export const sendMessageTg = async (req, res) => {
     try {
@@ -16,7 +17,7 @@ export const sendMessageTg = async (req, res) => {
         }
 
         let totalCost = 0
-        let message = `<b>${user._doc.role === 'user' ? '«««««Розница»»»»»' : '«««««ОПТ»»»»»'}</b>\n`
+        let message = `<b>${user._doc.role === 'superUser' ? '«««««ОПТ»»»»»' :'«««««Розница»»»»»' }</b>\n`
         message += `<b>Клиент: </b>${user._doc.name}\n`
         message += `<a href="tel:${user._doc.phoneNumber}">Номер телефона: </a>${user._doc.phoneNumber}\n`
         message += `<b>Id заказа: </b>${req.order.id}\n`
@@ -25,10 +26,11 @@ export const sendMessageTg = async (req, res) => {
         message += `<b>«««««ЗАКАЗ»»»»»</b>\n`
         message += `\n`
         basket.map((product, index) => {
-            message += `${product.name} ${'(' + product.type + ')' === 'coffe-beance' ? product.roast :''}\n`
-            message += `Вес:${product.weight}\n`
+            message += `${product.name} ${product.type === 'coffe-beans' ? `(${product.roast})` :''}\n`
+            message += product.type === 'coffe-beans' ? `Вес:${product.weight}\n` : ''
+            message += product.type === 'tea' ? `Упаковка:${product.package}\n` : ''
             message += `Кол-во:${product.amount}\n`
-            message += `Помол:${product.pomol}\n`
+            message += product.type === 'coffe-beans' ? `Помол:${product.pomol}\n` : ''
             message += `\n`
             const price = +product.price.split(' ').join('')
             const amount = product.amount
@@ -43,6 +45,7 @@ export const sendMessageTg = async (req, res) => {
             parse_mode: 'html',
             text: message,
         })
+        console.log(request)
         if (request.status === 200) {
             await OrderModel.findByIdAndUpdate({ _id: req.order.id }, {
                 telegram: {
@@ -122,6 +125,7 @@ export const updateStatus = async (req, res) => {
     try {
         const orderId = req.body.orderId
         const nextStatus = req.body.nextStatus
+        console.log(nextStatus)
         await OrderModel.findByIdAndUpdate({ _id: orderId },
             {
                 status: nextStatus
@@ -291,7 +295,6 @@ export const getUserOrders = async (req, res) => {
 
 
 function getDate() {
-    // const seoul = moment(1489199400000).tz('Asia/Tashkent');
     const now = new Date()
     let S = now.getSeconds()
     let MN = now.getMinutes()
