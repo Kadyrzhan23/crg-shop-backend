@@ -132,9 +132,6 @@ export const addInTop = async (req, res) => {
 
 export const deleteFromTop = async (req, res) => {
     try {
-        const post = await PostModel.findById({ _id: req.body.postId })
-        const topList = await PostModel.find({tags:['топ']});
-        let tags = post.tags
 
         await PostModel.findByIdAndUpdate({ _id: req.body.postId }, {
            topList:false
