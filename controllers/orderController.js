@@ -4,10 +4,10 @@ import OrderModel from '../models/Order.js'
 const token = '6669205103:AAE24RYRkDOPbZ46ygWV6CoZENfXBIiAQi8'
 const chat_id = `-1002085755553`
 const chat_id_users = '-1002066903328'
+const chat_id_super = `-1002112440272`
 const uri = `https://api.telegram.org/bot${token}/sendMessage`
 export const sendMessageTg = async (req, res) => {
     try {
-        const basket = req.order.listProducts
         const user = await UserModel.findById(req.userId)
 
         if (!user) {
@@ -16,40 +16,25 @@ export const sendMessageTg = async (req, res) => {
             })
         }
 
-        let totalCost = 0
-        let message = `<b>${user._doc.role === 'superUser' ? '«««««ОПТ»»»»»' :'«««««Розница»»»»»' }</b>\n`
-        message += `<b>Клиент: </b>${user._doc.name}\n`
-        message += `<a href="tel:${user._doc.phoneNumber}">Номер телефона: </a>${user._doc.phoneNumber}\n`
-        message += `<b>Id заказа: </b>${req.order.id}\n`
-        message += `<b>Способ оплаты: </b>${req.body.paymentMethod}\n`
-        message += `\n`
-        message += `<b>«««««ЗАКАЗ»»»»»</b>\n`
-        message += `\n`
-        basket.map((product, index) => {
-            message += `${product.name} ${product.type === 'coffe-beans' ? `(${product.roast})` :''}\n`
-            message += product.type === 'coffe-beans' ? `Вес:${product.weight}\n` : ''
-            message += product.type === 'tea' ? `Упаковка:${product.package}\n` : ''
-            message += `Кол-во:${product.amount}\n`
-            message += product.type === 'coffe-beans' ? `Помол:${product.pomol}\n` : ''
-            message += `\n`
-            const price = +product.price.split(' ').join('')
-            const amount = product.amount
-            totalCost += amount * price
-            if (index === basket.length - 1) {
-                message += `<b>Итого: </b> ${req.body.totalPrice}\n`
-                req.order.comment !== '' ? message += `<b>Комментария от клиента: </b> ${req.order.comment}\n` : null
-            }
-        })
+        const options = {
+            basket: req.order.listProducts,
+            user,
+            order: req.order,
+            paymentMethod: req.body.paymentMethod,
+            totalPrice: req.body.totalPrice
+        }
+        const message = await generateOrderText(options)
         const request = await axios.post(uri, {
-            chat_id: chat_id,
+            chat_id: user.role === 'superUser' ? chat_id_super : chat_id_users,
             parse_mode: 'html',
             text: message,
         })
-        console.log(request)
         if (request.status === 200) {
             await OrderModel.findByIdAndUpdate({ _id: req.order.id }, {
                 telegram: {
-                    message_id: request.data.result.message_id,
+                    storehouse: {
+                        message_id: request.data.result.message_id,
+                    }
                 }
             })
             res.status(200).json({
@@ -66,7 +51,6 @@ export const sendMessageTg = async (req, res) => {
 export const create = async (req, res, next) => {
     try {
         const basket = req.body.basket
-        const comment = req.body.comment
         const doc = new OrderModel({
             userId: req.userId,
             listProducts: basket,
@@ -125,14 +109,34 @@ export const updateStatus = async (req, res) => {
     try {
         const orderId = req.body.orderId
         const nextStatus = req.body.nextStatus
-        console.log(nextStatus)
         await OrderModel.findByIdAndUpdate({ _id: orderId },
             {
                 status: nextStatus
             })
+        const order = await OrderModel.findById({ _id: orderId })
+        const user = await UserModel.findById(order.userId)
+        if (!user || user === null) {
+            return res.status(404).json({ message: 'Пользователь не найден' })
+        }
+        const options = {
+            basket: order.listProducts,
+            user,
+            order: order,
+            paymentMethod: order.paymentMethod,
+            totalPrice: order.totalPrice
+        }
+        const message = await generateOrderText(options)
+        nextStatus === 'Оформлен' ? await axios.post(uri, {
+            chat_id: chat_id,
+            parse_mode: 'html',
+            text: message,
+        }) : null
+
+
         res.status(200).json({ success: true })
 
     } catch (error) {
+        console.log(error)
         res.status(500).json({ message: error.message })
     }
 };
@@ -165,7 +169,8 @@ export const updateProductAmountInOrder = async (req, res) => {
             currentProduct.changedBy = {
                 userId: req.userId,
                 userName: req.userName,
-                updated: getDate()
+                updated: getDate(),
+                status: req.userStatus
             }
         }
 
@@ -342,4 +347,34 @@ function priceAdjustment(val) {
 async function orderNumber(type) {
     // const types = ['coffe-beans','tea','syrup','accessory','chemistry','coffee-capsule']
 
+}
+
+
+async function generateOrderText({ basket, user, order, paymentMethod, totalPrice }) {
+    let totalCost = 0
+    console.log(user)
+    let message = `<b>${user._doc.role === 'superUser' ? '«««««ОПТ»»»»»' : '«««««Розница»»»»»'}</b>\n`
+    message += `<b>Клиент: </b>${user._doc.name}\n`
+    message += `<a href="tel:${user._doc.phoneNumber}">Номер телефона: </a>${user._doc.phoneNumber}\n`
+    message += `<b>Id заказа: </b>${order.id}\n`
+    message += `<b>Способ оплаты: </b>${paymentMethod}\n`
+    message += `\n`
+    message += `<b>«««««ЗАКАЗ»»»»»</b>\n`
+    message += `\n`
+    basket.map((product, index) => {
+        message += `${product.name} ${product.type === 'coffe-beans' ? `(${product.roast})` : ''}\n`
+        message += product.type === 'coffe-beans' ? `Вес:${product.weight}\n` : ''
+        message += product.type === 'tea' ? `Упаковка:${product.package}\n` : ''
+        message += `Кол-во:${product.amount}\n`
+        message += product.type === 'coffe-beans' ? `Помол:${product.pomol}\n` : ''
+        message += `\n`
+        const price = +product.price.split(' ').join('')
+        const amount = product.amount
+        totalCost += amount * price
+        if (index === basket.length - 1) {
+            message += `<b>Итого: </b> ${totalPrice}\n`
+            order.comment !== '' ? message += `<b>Комментария от клиента: </b> ${order.comment}\n` : null
+        }
+    })
+    return message
 }

@@ -43,7 +43,7 @@ const UserSchema = new mongoose.Schema({
         default:true
     },
     manager:{
-        type:String,
+        type:Object,
         default:''
     }
 },

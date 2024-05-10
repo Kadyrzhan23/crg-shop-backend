@@ -18,8 +18,8 @@ export const register = async (req, res) => {
         const bool = regexp.test(req.body.phoneNumber)
         const phoneNumber = bool ? req.body.phoneNumber : `+998${req.body.phoneNumber}`
 
-        if(!bool && req.body.phoneNumber.length !== 9){
-            res.status(401).json({message: 'Invalid phone number'})
+        if (!bool && req.body.phoneNumber.length !== 9) {
+            res.status(401).json({ message: 'Invalid phone number' })
         }
         // console.log(req.body)
 
@@ -33,7 +33,7 @@ export const register = async (req, res) => {
             password: passwordHash
         })
         // console.log(req.body.hasOwnProperty("email"))
-        if(req.body.hasOwnProperty("email")) doc.email = req.body.email
+        if (req.body.hasOwnProperty("email")) doc.email = req.body.email
         else doc.email = `default:${+new Date()}`
         console.log(doc)
 
@@ -61,7 +61,7 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
     try {
-        const user = await UserModel.findOne({ email: req.body.email })
+        const user = await UserModel.findOne({ phoneNumber: req.body.phoneNumber })
 
         if (!user) {
             return res.status(404).json({
@@ -99,7 +99,7 @@ export const getMe = async (req, res) => {
         }
 
         const { password, ...userData } = user._doc
- 
+
 
         return res.json({
             ...userData

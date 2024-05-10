@@ -66,7 +66,6 @@ export const createPostTea = async (req, res) => {
             type: req.body.type,
             tags:req.body.tags
         })
-        console.log(req.body)
 
         const post = await doc.save()
 

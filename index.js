@@ -14,6 +14,7 @@ import fs from 'fs'
 import path from "path";
 import checkAuthAdmin from './utils/checkAuthAdmin.js'
 import { sendMessage } from './controllers/tgMessageController.js'
+import Manager from './models/Manager.js'
 
 mongoose
     // .connect('mongodb+srv://zarimkofe:wwwwww@cluster0.ddu19sw.mongodb.net/blog?retryWrites=true&w=majority')
@@ -95,6 +96,14 @@ app.get('/user/:id', checkAuthAdmin, UserController.getUserInfo)
 app.get('/user-orders/:userId', checkAuthAdmin, OrderController.getUserOrders)
 app.patch('/block-user',checkAuthAdmin, UserController.block)
 app.patch('/unlock-user',checkAuthAdmin, UserController.unlock)
+
+
+app.get('/get-all-managers',async(req,res)=>{
+    const response = await Manager.find()
+    console.log(response)
+    res.json(response)
+})
+
 
 
 
