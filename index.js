@@ -59,9 +59,9 @@ app.use(express.json())
 app.use('/uploads', express.static('uploads'));
 
 //Авторизация
-app.post('/auth/register', registerValidator, UserController.register)
-app.post('/auth/login', loginValidator, UserController.login)
-app.get('/auth/me', checkAuth, UserController.getMe)
+app.post('/register', registerValidator, UserController.register)
+app.post('/login', loginValidator, UserController.login)
+app.get('/me', checkAuth, UserController.getMe)
 app.patch('/update-user-data',checkAuth , UserController.update)
 app.post('/send-code', SendCode.updateUserCode)
 app.patch('/block-user',checkAuthAdmin, UserController.block)

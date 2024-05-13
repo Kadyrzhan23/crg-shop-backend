@@ -62,7 +62,7 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
     try {
         const user = await UserModel.findOne({ phoneNumber: req.body.phoneNumber })
-
+        console.log(user)
         if (!user) {
             return res.status(404).json({
                 message: 'Неверный логин или пароль'
