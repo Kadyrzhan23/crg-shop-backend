@@ -98,6 +98,10 @@ app.patch('/block-user',checkAuthAdmin, UserController.block)
 app.patch('/unlock-user',checkAuthAdmin, UserController.unlock)
 
 
+//Разработка
+app.post('/send-code',checkAuth , OrderController.sendCode)
+
+
 app.get('/get-all-managers',async(req,res)=>{
     const response = await Manager.find()
     console.log(response)

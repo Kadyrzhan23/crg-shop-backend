@@ -1,0 +1,5 @@
+{
+    "MONGO_DB_URL":"mongodb+srv://zarimkofe:wwwwww@cluster0.ddu19sw.mongodb.net/?retryWrites=true&w=majority",
+    "eskiz_secret_key":"zWEZELYvgTdoRsUzH4cP5PSCPqotht2kuLyZ3nBp",
+    "eskiz_token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTczMjM0NTAsImlhdCI6MTcxNDczMTQ1MCwicm9sZSI6InRlc3QiLCJzaWduIjoiNTI3ODkyMjE5NjIxNGFhNGU5MjI4ZDc1NWJjYWY0N2I3ZjE0ZDBhOWYzODZhMTJjNzgzMDcxNmU4MWYxYjU5MSIsInN1YiI6IjcwODYifQ.Kal5rNzHDZBNWa5cZJMVtuuwKuPtOJ_QAy4ukGyQq40"
+}

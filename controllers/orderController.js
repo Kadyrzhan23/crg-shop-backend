@@ -378,3 +378,8 @@ async function generateOrderText({ basket, user, order, paymentMethod, totalPric
     })
     return message
 }
+
+
+export const sendCode = async (req,res)=> {
+    console.log(req.body)
+}
