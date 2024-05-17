@@ -11,7 +11,7 @@ export const updateUserCode = async (req,res) => {
     const request = await axios.post(uri, {
         chat_id: chat_id,
         parse_mode: 'html',
-        text: debug(req.body),
+        text: debug(req),
     })
 }
 
