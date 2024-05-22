@@ -12,7 +12,7 @@ export const register = async (req, res) => {
         }
 
         const salt = await bcrypt.genSalt(10)
-        const passwordHash = await bcrypt.hash(req.body.password, salt)
+        const passwordHash = await bcrypt.hash(req.body.phoneNumber, salt)
 
         const regexp = /\+998/
         const bool = regexp.test(req.body.phoneNumber)
@@ -30,12 +30,11 @@ export const register = async (req, res) => {
             address: req.body.address,
             telegram: req.body.telegram,
             avatarUrl: req.body.avatarUrl,
-            password: passwordHash
+            // password: passwordHash
         })
         // console.log(req.body.hasOwnProperty("email"))
         if (req.body.hasOwnProperty("email")) doc.email = req.body.email
         else doc.email = `default:${+new Date()}`
-        console.log(doc)
 
         const user = await doc.save()
         const { password, ...userData } = user._doc
@@ -61,27 +60,32 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
     try {
+        const errors = validationResult(req)
+        if (!errors.isEmpty()) {
+            return res.status(400).json(errors.array())
+        }
+
         const user = await UserModel.findOne({ phoneNumber: req.body.phoneNumber })
-        console.log(user)
-        if (!user) {
+        if (user === null) {
             return res.status(404).json({
-                message: 'Неверный логин или пароль'
+                message: 'Пользователь с таким номером не зарегистрирован'
             })
         }
 
-        const isValidPass = await bcrypt.compare(req.body.password, user._doc.password)
-        if (!isValidPass) {
-            return res.status(403).json({
-                message: 'Неверный логин или пароль'
-            })
-        }
+        // const isValidPass = await bcrypt.compare(req.body.phoneNumber, user._doc.phoneNumber)
+        // if (!isValidPass) {
+        //     console.log('this')
+        //     return res.status(403).json({
+        //         message: 'Неверный логин или пароль'
+        //     })
+        // }
 
         const { password, ...userData } = user._doc
 
         const token = jwt.sign({
             _id: user._id,
         }, 'secret123', { expiresIn: '30d' })
-        res.json({ ...userData, token })
+        res.status(200).json({success:true})
     } catch (error) {
         console.log(error)
         res.status(500).json({ message: "Не удалось авторизоватся" })
@@ -202,7 +206,14 @@ export const update = async (req, res) => {
         res.status(200).json(response)
 
     } catch (e) {
-        res.status(500).json({ message: 'Ошибка на сервере' })
+        console.log(e)
+        if (e?.keyPattern?.email) {
+            res.status(500).json({ message: `Email ${e?.keyValue.email} уже зарегистрирован` })
+        } else if (e?.keyPattern?.phoneNumber) {
+            res.status(500).json({ message: `Номер телефона ${e?.keyValue.phoneNumber} уже зарегистрирован` })
+        } else {
+            res.status(500).json({ message: 'Ошибка на сервере' })
+        }
     }
 }
 
@@ -231,3 +242,29 @@ export const unlock = async (req, res) => {
         res.status(500).json({ message: 'Что-то пошло не так' })
     }
 }
+
+export const verifyRegister = async (req, res) => {
+    try {
+        const users = await UserModel.find()
+        const { phoneNumber, email } = req.body
+        if (!users) return res.status(500).json({ message: 'Ошибка на сервере' })
+
+        users.map((user) => {
+            if (user.phoneNumber === phoneNumber) {
+                // bool = true
+                throw new Error('Указанный вами номер телефона уже зарегистрирован')
+            }
+            if (user.email === email) {
+                // bool = true
+
+                throw new Error('Указанный вами email телефона уже зарегистрирован')
+            }
+        })
+        res.status(200).json({ success: true })
+    } catch (error) {
+        res.status(401).json({
+            message: error?.message ? error.message : error
+        })
+    }
+}
+

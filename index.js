@@ -15,9 +15,8 @@ import path from "path";
 import checkAuthAdmin from './utils/checkAuthAdmin.js'
 import { sendMessage } from './controllers/tgMessageController.js'
 import Manager from './models/Manager.js'
-
 mongoose
-    // .connect('mongodb+srv://zarimkofe:wwwwww@cluster0.ddu19sw.mongodb.net/blog?retryWrites=true&w=majority')
+    // .connect(process.env.MONGO_DB_URL)
     .connect('mongodb+srv://zarimkofe:wwwwww@cluster0.ddu19sw.mongodb.net/blog?retryWrites=true&w=majority&ssl=true')
     // .connect('mongodb+srv://zarimkofe:wwwwww@cluster0.ddu19sw.mongodb.net/deploy?retryWrites=true&w=majority&ssl=true')
     .then(() => {
@@ -60,12 +59,13 @@ app.use('/uploads', express.static('uploads'));
 
 //Авторизация
 app.post('/register', registerValidator, UserController.register)
+app.post('/register-verify',UserController.verifyRegister)
 app.post('/login', loginValidator, UserController.login)
 app.get('/me', checkAuth, UserController.getMe)
-app.patch('/update-user-data',checkAuth , UserController.update)
-app.post('/send-code', SendCode.updateUserCode)
-app.patch('/block-user',checkAuthAdmin, UserController.block)
-app.patch('/unlock-user',checkAuthAdmin, UserController.unlock)
+app.patch('/update-user-data', checkAuth, UserController.update)
+// app.post('/send-code', SendCode.updateUserCode)
+app.patch('/block-user', checkAuthAdmin, UserController.block)
+app.patch('/unlock-user', checkAuthAdmin, UserController.unlock)
 
 //Посты
 app.get('/post/getAll', PostController.getAll)
@@ -73,11 +73,11 @@ app.post('/post/create/coffe', checkAuthAdmin, createPostValidation, PostControl
 app.post('/post/create/tea', checkAuthAdmin, createPostTeaValidation, PostController.createPostTea)
 app.post('/post/create/other', checkAuthAdmin, createPostOtherValidation, PostController.createPostOtherProducts)
 app.post('/post/favorites', PostController.getFavorites)
-app.post('/post',checkAuthAdmin,PostController.deletePost)
-app.patch('/post/add-in-top',checkAuthAdmin,PostController.addInTop)
-app.patch('/post/delete-from-top',checkAuthAdmin,PostController.deleteFromTop)
-app.patch('/post/add-in-stop',checkAuthAdmin,PostController.addInStop)
-app.patch('/post/delete-from-stop',checkAuthAdmin,PostController.deleteFromStop)
+app.post('/post', checkAuthAdmin, PostController.deletePost)
+app.patch('/post/add-in-top', checkAuthAdmin, PostController.addInTop)
+app.patch('/post/delete-from-top', checkAuthAdmin, PostController.deleteFromTop)
+app.patch('/post/add-in-stop', checkAuthAdmin, PostController.addInStop)
+app.patch('/post/delete-from-stop', checkAuthAdmin, PostController.deleteFromStop)
 
 
 
@@ -94,15 +94,17 @@ app.patch('/order/product', checkAuthAdmin, OrderController.deleteProductFromOrd
 app.patch('/order/product/amount', checkAuthAdmin, OrderController.updateProductAmountInOrder)
 app.get('/user/:id', checkAuthAdmin, UserController.getUserInfo)
 app.get('/user-orders/:userId', checkAuthAdmin, OrderController.getUserOrders)
-app.patch('/block-user',checkAuthAdmin, UserController.block)
-app.patch('/unlock-user',checkAuthAdmin, UserController.unlock)
+app.patch('/block-user', checkAuthAdmin, UserController.block)
+app.patch('/unlock-user', checkAuthAdmin, UserController.unlock)
 
 
 //Разработка
-// app.post('/send-code',checkAuth , OrderController.sendCode)
+app.post('/send-code', SendCode.sendCode)
+app.post('/verify-code', SendCode.verifyCode,UserController.register)
 
 
-app.get('/get-all-managers',async(req,res)=>{
+
+app.get('/get-all-managers', async (req, res) => {
     const response = await Manager.find()
     console.log(response)
     res.json(response)
@@ -130,7 +132,7 @@ app.post('/upload', upload.single('image'), (req, res) => {
     }
 });
 
-app.listen( process.env.PORT || 4444, (err) => {
+app.listen(process.env.PORT || 4444, (err) => {
     if (err) {
         return console.log(err)
     }
