@@ -32,12 +32,12 @@ export const sendCode = async (req, res) => {
 
         if (user) {
             await AuthModel.findOneAndUpdate({ phoneNumber: req.body.phoneNumber }, {
-                code: codeDB
+                code: code
             })
         } else {
             const doc = new AuthModel({
                 phoneNumber: req.body.phoneNumber,
-                code: codeDB
+                code: code
             })
             doc.save()
         }
@@ -90,6 +90,8 @@ export const verifyCode = async (req, res, next) => {
             } else {
                 next()
             }
+        }else{
+            return res.status(401).json({message:'Неверный код'})
         }
 
     } catch (error) {
@@ -106,7 +108,7 @@ const generateIndex = (min, max) => {
 }
 
 const generateCode = () => {
-    return `${generateIndex(0, 9)}${generateIndex(0, 9)}${generateIndex(0, 9)}-${generateIndex(0, 9)}${generateIndex(0, 9)}${generateIndex(0, 9)}`
+    return `${generateIndex(0, 9)}${generateIndex(0, 9)}${generateIndex(0, 9)}${generateIndex(0, 9)}${generateIndex(0, 9)}${generateIndex(0, 9)}`
 }
 
 

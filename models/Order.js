@@ -44,6 +44,14 @@ const OrderSchema = new mongoose.Schema({
     paymentMethod:{
         type:String,
         required: true,
+    },
+    identifier:{
+        type:String,
+        required: true,
+    },
+    managerId:{
+        type:String,
+        required: true,
     }
 },
     {

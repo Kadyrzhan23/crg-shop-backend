@@ -14,10 +14,6 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    // password: {
-    //     type: String,
-    //     required: true
-    // },
     role: {
         type: String,
         default: 'user'
@@ -44,7 +40,14 @@ const UserSchema = new mongoose.Schema({
     },
     manager:{
         type:Object,
-        default:''
+        default:{
+            "name":"Manager 1",
+            "id":"12345",
+            "chat_id":""
+        }
+    },
+    city:{
+        type:String,
     }
 },
     {

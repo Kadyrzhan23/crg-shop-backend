@@ -8,6 +8,11 @@ const ManagerSchema = new mongoose.Schema({
     chat_id:{
         type:String,
         requered:true,
+    },
+    id:{
+        type:String,
+        required:true,
+        unique:true
     }
 })
 

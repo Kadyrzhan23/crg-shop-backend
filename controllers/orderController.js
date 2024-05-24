@@ -9,7 +9,6 @@ const uri = `https://api.telegram.org/bot${token}/sendMessage`
 export const sendMessageTg = async (req, res) => {
     try {
         const user = await UserModel.findById(req.userId)
-
         if (!user) {
             return res.sendStatus(404).json({
                 message: 'Нет доступа'
@@ -21,7 +20,8 @@ export const sendMessageTg = async (req, res) => {
             user,
             order: req.order,
             paymentMethod: req.body.paymentMethod,
-            totalPrice: req.body.totalPrice
+            totalPrice: req.body.totalPrice,
+            identifier: req.identifier
         }
         const message = await generateOrderText(options)
         const request = await axios.post(uri, {
@@ -50,14 +50,18 @@ export const sendMessageTg = async (req, res) => {
 
 export const create = async (req, res, next) => {
     try {
+        const allOrders = await OrderModel.find()
         const basket = req.body.basket
+        const indentifier = generateIdentifier(allOrders.length + 1)
+        req.identifier = indentifier
         const doc = new OrderModel({
             userId: req.userId,
             listProducts: basket,
             creationDate: getDate(),
             comment: req.body.comment,
             totalPrice: req.body.totalPrice,
-            paymentMethod: req.body.paymentMethod
+            paymentMethod: req.body.paymentMethod,
+            identifier: indentifier
         })
 
         const order = await doc.save()
@@ -350,13 +354,13 @@ async function orderNumber(type) {
 }
 
 
-async function generateOrderText({ basket, user, order, paymentMethod, totalPrice }) {
+async function generateOrderText({ basket, user, order, paymentMethod, totalPrice, identifier }) {
     let totalCost = 0
     console.log(user)
     let message = `<b>${user._doc.role === 'superUser' ? '«««««ОПТ»»»»»' : '«««««Розница»»»»»'}</b>\n`
     message += `<b>Клиент: </b>${user._doc.name}\n`
     message += `<a href="tel:${user._doc.phoneNumber}">Номер телефона: </a>${user._doc.phoneNumber}\n`
-    message += `<b>Id заказа: </b>${order.id}\n`
+    message += `<b>Номер: </b>${identifier}\n`
     message += `<b>Способ оплаты: </b>${paymentMethod}\n`
     message += `\n`
     message += `<b>«««««ЗАКАЗ»»»»»</b>\n`
@@ -380,6 +384,16 @@ async function generateOrderText({ basket, user, order, paymentMethod, totalPric
 }
 
 
-export const sendCode = async (req,res)=> {
-    console.log(req.body)
+const generateIdentifier = (length) => {
+    if(length < 10){
+        return `00000${length}`
+    }else if(length < 100){
+        return `0000${length}`
+    }else if(length < 1000){
+        return `000${length}`
+    }else if(length < 10000){
+        return `00${length}`
+    }else if(length < 100000){
+        return `00${length}`
+    }
 }

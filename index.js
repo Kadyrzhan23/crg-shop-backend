@@ -5,6 +5,7 @@ import checkAuth from './utils/checkAuth.js'
 import * as UserController from './controllers/userController.js'
 import * as PostController from './controllers/postController.js'
 import * as OrderController from './controllers/orderController.js'
+import * as ManagerController from './controllers/managersController.js'
 import * as SendCode from './controllers/sendCode.js'
 
 import { createPostValidation, createPostTeaValidation, createPostOtherValidation } from './validation/Post.js'
@@ -96,6 +97,11 @@ app.get('/user/:id', checkAuthAdmin, UserController.getUserInfo)
 app.get('/user-orders/:userId', checkAuthAdmin, OrderController.getUserOrders)
 app.patch('/block-user', checkAuthAdmin, UserController.block)
 app.patch('/unlock-user', checkAuthAdmin, UserController.unlock)
+app.post('/managers/create',checkAuthAdmin , ManagerController.create)
+app.get('/managers',checkAuthAdmin , ManagerController.getManagers)
+app.post('/change-manager',checkAuthAdmin , ManagerController.changeManagerUser)
+
+
 
 
 //Разработка
