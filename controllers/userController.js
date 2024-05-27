@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt'
 import { validationResult } from 'express-validator'
 import UserModel from '../models/User.js'
+import ManagerModel from '../models/Manager.js'
 import jwt from 'jsonwebtoken'
 
 
@@ -12,12 +13,12 @@ export const register = async (req, res) => {
         }
 
         const salt = await bcrypt.genSalt(10)
-        const passwordHash = await bcrypt.hash(req.body.phoneNumber, salt)
+        // const passwordHash = await bcrypt.hash(req.body.phoneNumber, salt)
 
         const regexp = /\+998/
         const bool = regexp.test(req.body.phoneNumber)
         const phoneNumber = bool ? req.body.phoneNumber : `+998${req.body.phoneNumber}`
-
+        const managers = await ManagerModel.find()
         if (!bool && req.body.phoneNumber.length !== 9) {
             res.status(401).json({ message: 'Invalid phone number' })
         }
@@ -27,15 +28,17 @@ export const register = async (req, res) => {
             name: req.body.name,
             phoneNumber: phoneNumber,
             role: req.body.role,
+            city: req.body.city,
             address: req.body.address,
             telegram: req.body.telegram,
             avatarUrl: req.body.avatarUrl,
+            manager:managers[0]
             // password: passwordHash
         })
         // console.log(req.body.hasOwnProperty("email"))
         if (req.body.hasOwnProperty("email")) doc.email = req.body.email
         else doc.email = `default:${+new Date()}`
-
+        console.log(doc)
         const user = await doc.save()
         const { password, ...userData } = user._doc
 

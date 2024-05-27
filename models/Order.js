@@ -49,8 +49,8 @@ const OrderSchema = new mongoose.Schema({
         type:String,
         required: true,
     },
-    managerId:{
-        type:String,
+    manager:{
+        type:Object,
         required: true,
     }
 },

@@ -22,6 +22,10 @@ const UserSchema = new mongoose.Schema({
         type: Array,
         required: true
     },
+    city: {
+        type: String,
+        required: true
+    },
     telegram: {
         type: String,
         default: ''
@@ -40,14 +44,14 @@ const UserSchema = new mongoose.Schema({
     },
     manager:{
         type:Object,
-        default:{
-            "name":"Manager 1",
-            "id":"12345",
-            "chat_id":""
-        }
+        required:true
     },
     city:{
         type:String,
+    },
+    basket:{
+        type:Array,
+        default:[]
     }
 },
     {

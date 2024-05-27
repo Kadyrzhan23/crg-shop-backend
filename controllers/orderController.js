@@ -51,6 +51,8 @@ export const sendMessageTg = async (req, res) => {
 export const create = async (req, res, next) => {
     try {
         const allOrders = await OrderModel.find()
+        const user = await UserModel.findById({ _id: req.userId })
+        console.log(user.manager)
         const basket = req.body.basket
         const indentifier = generateIdentifier(allOrders.length + 1)
         req.identifier = indentifier
@@ -61,14 +63,15 @@ export const create = async (req, res, next) => {
             comment: req.body.comment,
             totalPrice: req.body.totalPrice,
             paymentMethod: req.body.paymentMethod,
-            identifier: indentifier
+            identifier: indentifier,
+            manager:user.manager
         })
 
         const order = await doc.save()
         req.order = order
         next()
     } catch (error) {
-
+        console.log(error)
         res.status(500).json({
             message: 'Ошибка при создание заказа',
             doc: error.message
@@ -359,13 +362,24 @@ async function generateOrderText({ basket, user, order, paymentMethod, totalPric
     console.log(user)
     let message = `<b>${user._doc.role === 'superUser' ? '«««««ОПТ»»»»»' : '«««««Розница»»»»»'}</b>\n`
     message += `<b>Клиент: </b>${user._doc.name}\n`
-    message += `<a href="tel:${user._doc.phoneNumber}">Номер телефона: </a>${user._doc.phoneNumber}\n`
+    message += `<b><a href="tel:${user._doc.phoneNumber}">Номер телефона: </a></b>${user._doc.phoneNumber}\n`
     message += `<b>Номер: </b>${identifier}\n`
     message += `<b>Способ оплаты: </b>${paymentMethod}\n`
+    message += `<b>Менеджер: </b>${order.manager.name}\n`
+
     message += `\n`
     message += `<b>«««««ЗАКАЗ»»»»»</b>\n`
     message += `\n`
     basket.map((product, index) => {
+        let type = ''
+        if (product.type === 'coffe-beans') type = 'Кофе'
+        else if (product.type === 'tea') type = 'Чай'
+        else if (product.type === 'syrup') type = 'Сироп'
+        else if (product.type === 'accessory') type = 'Аксессуар'
+        else if (product.type === 'chemistry') type = 'Химия'
+        else if (product.type === 'coffee-capsule') type = 'Кофе в капсуле'
+        else if (product.type === 'drip') type = 'Дрип-кофе'
+        message += `Вид товара:${type}\n`
         message += `${product.name} ${product.type === 'coffe-beans' ? `(${product.roast})` : ''}\n`
         message += product.type === 'coffe-beans' ? `Вес:${product.weight}\n` : ''
         message += product.type === 'tea' ? `Упаковка:${product.package}\n` : ''
@@ -385,15 +399,15 @@ async function generateOrderText({ basket, user, order, paymentMethod, totalPric
 
 
 const generateIdentifier = (length) => {
-    if(length < 10){
+    if (length < 10) {
         return `00000${length}`
-    }else if(length < 100){
+    } else if (length < 100) {
         return `0000${length}`
-    }else if(length < 1000){
+    } else if (length < 1000) {
         return `000${length}`
-    }else if(length < 10000){
+    } else if (length < 10000) {
         return `00${length}`
-    }else if(length < 100000){
+    } else if (length < 100000) {
         return `00${length}`
     }
 }
