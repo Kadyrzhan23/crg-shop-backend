@@ -21,8 +21,8 @@ export const updateUserCode = async (req, res) => {
 
 export const sendCode = async (req, res) => {
     try {
-        if(!req.body.phoneNumber){
-            return res.status(404).json({message:'Вернитесь назад и введите данные зоново'})
+        if (!req.body.phoneNumber) {
+            return res.status(404).json({ message: 'Вернитесь назад и введите данные зоново' })
         }
         const authStr = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTg1NTUyNzIsImlhdCI6MTcxNTk2MzI3Miwicm9sZSI6InVzZXIiLCJzaWduIjoiNWQyZTBhYjIxYjI4NDY1MDk2ZGY3NWQ1ZWE3ZDJjMDVlZjZlNWZlZjVlMTBlZWZkNjZiNDM0ZThhMmZhZTNjOSIsInN1YiI6IjcwODYifQ.t498XthH4FQc7T_DSmlJgTFrvtBLT8KIcljTGDUL6ag"
         const code = generateCode()
@@ -72,9 +72,6 @@ export const verifyCode = async (req, res, next) => {
 
         }
 
-        if (!phoneNumber) {
-            console.log('No phone number')
-        }
 
         if (model.code === code) {
             await AuthModel.findOneAndDelete({ phoneNumber: phoneNumber })
@@ -82,16 +79,46 @@ export const verifyCode = async (req, res, next) => {
             const user = await UserModel.findOne({ phoneNumber: phoneNumber })
 
             if (user !== null) {
-                const token = jwt.sign({
-                    _id: user._id,
-                }, 'secret123', { expiresIn: '30d' })
+                
                 const { password, ...userData } = user._doc
+                const a = {
+                    "_id":"6650a050eb77f3f2685b0517",
+                    "name": "Жавохир Ахмедов",
+                    "phoneNumber": "+998909927144",
+                    "role": "admin",
+                    "address": [
+                        "Nurafshon, 8"
+                    ],
+                    "telegram": "@exxxxpresso",
+                    "avatarUrl": "uploads/1716833232247.jpg",
+                    "organization": [],
+                    "isActive": true,
+                    "manager": {
+                        "_id": "664e5cc082d55ec269275d88",
+                        "name": "Manager 2",
+                        "chat_id": "",
+                        "id": "6650a050eb77f3f2685b0517",
+                        "__v": 0
+                    },
+                    "email": "reddou4@mail.ru",
+                    "__v": 0
+                }
+                // const token = jwt.sign({
+                //     _id: a._id,
+                // }, 'secret123', { expiresIn: '30d' })
+                // const b = { ...a, token }
+                // return res.status(200).json(b)
+
+                const token = jwt.sign({
+                    _id: userData._id,
+                }, 'secret123', { expiresIn: '30d' })
                 return res.status(200).json({...userData,token})
+
             } else {
                 next()
             }
-        }else{
-            return res.status(401).json({message:'Неверный код'})
+        } else {
+            return res.status(401).json({ message: 'Неверный код' })
         }
 
     } catch (error) {

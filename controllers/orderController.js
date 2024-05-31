@@ -52,7 +52,7 @@ export const create = async (req, res, next) => {
     try {
         const allOrders = await OrderModel.find()
         const user = await UserModel.findById({ _id: req.userId })
-        console.log(user.manager)
+        console.log(user)
         const basket = req.body.basket
         const indentifier = generateIdentifier(allOrders.length + 1)
         req.identifier = indentifier

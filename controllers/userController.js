@@ -106,7 +106,28 @@ export const getMe = async (req, res) => {
         }
 
         const { password, ...userData } = user._doc
-
+        const a = {
+            "_id":"6650a050eb77f3f2685b0517",
+            "name": "Жавохир Ахмедов",
+            "phoneNumber": "+998909927144",
+            "role": "admin",
+            "address": [
+                "Nurafshon, 8"
+            ],
+            "telegram": "@exxxxpresso",
+            "avatarUrl": "uploads/1716833232247.jpg",
+            "organization": [],
+            "isActive": true,
+            "manager": {
+                "_id": "664e5cc082d55ec269275d88",
+                "name": "Manager 2",
+                "chat_id": "",
+                "id": "6650a050eb77f3f2685b0517",
+                "__v": 0
+            },
+            "email": "reddou4@mail.ru",
+            "__v": 0
+        }
 
         return res.json({
             ...userData
@@ -156,17 +177,20 @@ export const getAllUsers = async (req, res) => {
 export const userLevelUp = async (req, res) => {
     try {
         const user = await UserModel.findById(req.body.currentUserId)
-
+        const managers = await ManagerModel.find()
+        console.log(managers)
         if (!user) {
             res.status(404).json({ message: 'Пользователь не найден' })
         }
 
         await UserModel.findByIdAndUpdate({ _id: req.body.currentUserId }, {
-            role: "superUser"
+            role: "superUser",
+            manager:managers[1]
         })
 
         res.status(200).json({ message: 'Уровен пользователя поднято' })
     } catch (error) {
+        console.log(error)
         res.status(500).json({ message: 'Что то пошло не так' })
     }
 }
