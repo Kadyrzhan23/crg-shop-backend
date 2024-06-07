@@ -8,11 +8,10 @@ export default async (req, res, next) => {
             const decoded = jwt.verify(token, 'secret123')
             req.userId = decoded._id
             const user = await UserModel.findById(req.userId)
-            if (user.role === 'admin') {
+            if (user.role === 'admin' || user.role === 'operator') {
                 req.userName = user.name
                 next()
             } else {
-                console.log(2)
                 return res.status(403).json({
                     message: "Нет доступа"
                 })

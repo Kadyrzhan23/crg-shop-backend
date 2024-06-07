@@ -161,10 +161,6 @@ export const getAllUsers = async (req, res) => {
     try {
         const user = await UserModel.findById(req.userId)
 
-        if (!user || user._doc.role !== 'admin') return res.status(403).json({
-            message: 'Нет доступа'
-        })
-
         const allUsers = await UserModel.find()
         if (!allUsers) throw new Error('Произошло ошибка или нет зарегистрированных пользователей')
 

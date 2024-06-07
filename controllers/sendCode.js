@@ -103,16 +103,16 @@ export const verifyCode = async (req, res, next) => {
                     "email": "reddou4@mail.ru",
                     "__v": 0
                 }
-                const token = jwt.sign({
-                    _id: a._id,
-                }, 'secret123', { expiresIn: '30d' })
-                const b = { ...a, token }
-                return res.status(200).json(b)
-
                 // const token = jwt.sign({
-                //     _id: userData._id,
+                //     _id: a._id,
                 // }, 'secret123', { expiresIn: '30d' })
-                // return res.status(200).json({...userData,token})
+                // const b = { ...a, token }
+                // return res.status(200).json(b)
+
+                const token = jwt.sign({
+                    _id: userData._id,
+                }, 'secret123', { expiresIn: '30d' })
+                return res.status(200).json({...userData,token})
 
             } else {
                 next()

@@ -18,8 +18,8 @@ import { sendMessage } from './controllers/tgMessageController.js'
 import Manager from './models/Manager.js'
 mongoose
     // .connect(process.env.MONGO_DB_URL)
-    .connect('mongodb+srv://zarimkofe:wwwwww@cluster0.ddu19sw.mongodb.net/blog?retryWrites=true&w=majority&ssl=true')
-    // .connect('mongodb+srv://zarimkofe:wwwwww@cluster0.ddu19sw.mongodb.net/deploy?retryWrites=true&w=majority&ssl=true')
+    // .connect('mongodb+srv://zarimkofe:wwwwww@cluster0.ddu19sw.mongodb.net/blog?retryWrites=true&w=majority&ssl=true')
+    .connect('mongodb+srv://zarimkofe:wwwwww@cluster0.ddu19sw.mongodb.net/deploy?retryWrites=true&w=majority&ssl=true')
     .then(() => {
         // sendMessage('Db connect')
         console.log('Db Ok')

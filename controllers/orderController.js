@@ -92,12 +92,7 @@ export const getMyOrders = async (req, res) => {
 
 export const getAllOrders = async (req, res) => {
     try {
-        const user = await UserModel.findById(req.userId)
-        if (!user || user.role !== 'admin') {
-            return res.sendStatus(404).json({
-                message: 'Нет доступа'
-            })
-        }
+        // const user = await UserModel.findById(req.userId)
 
         const allOrders = await OrderModel.find()
         if (!allOrders) {
@@ -106,8 +101,11 @@ export const getAllOrders = async (req, res) => {
             })
         }
 
-        res.status(200).json(allOrders)
+        const managerOrders = allOrders.filter(order => req.userId === order.manager.id)
+
+        res.status(200).json(managerOrders)
     } catch (error) {
+        console.log(error)
         res.status(500).json({ message: error.message })
     }
 };
@@ -130,7 +128,8 @@ export const updateStatus = async (req, res) => {
             user,
             order: order,
             paymentMethod: order.paymentMethod,
-            totalPrice: order.totalPrice
+            totalPrice: order.totalPrice,
+            identifier: order.identifier
         }
         const message = await generateOrderText(options)
         nextStatus === 'Оформлен' ? await axios.post(uri, {
