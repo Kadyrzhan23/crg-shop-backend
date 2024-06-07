@@ -1,3 +1,5 @@
+import dotenv from 'dotenv'
+dotenv.config()
 import express from 'express'
 import mongoose from 'mongoose'
 import { registerValidator, loginValidator } from './validation/User.js'
@@ -7,7 +9,6 @@ import * as PostController from './controllers/postController.js'
 import * as OrderController from './controllers/orderController.js'
 import * as ManagerController from './controllers/managersController.js'
 import * as SendCode from './controllers/sendCode.js'
-
 import { createPostValidation, createPostTeaValidation, createPostOtherValidation } from './validation/Post.js'
 import cors from "cors";
 import multer from 'multer';
@@ -16,6 +17,7 @@ import path from "path";
 import checkAuthAdmin from './utils/checkAuthAdmin.js'
 import { sendMessage } from './controllers/tgMessageController.js'
 import Manager from './models/Manager.js'
+console.log(process.env.MONGO_DB_URL)
 mongoose
     // .connect(process.env.MONGO_DB_URL)
     // .connect('mongodb+srv://zarimkofe:wwwwww@cluster0.ddu19sw.mongodb.net/blog?retryWrites=true&w=majority&ssl=true')
@@ -112,7 +114,6 @@ app.post('/verify-code', SendCode.verifyCode,UserController.register)
 
 app.get('/get-all-managers', async (req, res) => {
     const response = await Manager.find()
-    console.log(response)
     res.json(response)
 })
 
@@ -124,7 +125,6 @@ app.get('/get-all-managers', async (req, res) => {
 // Роут для загрузки картинки
 app.post('/upload', upload.single('image'), (req, res) => {
     try {
-        console.log(req.file)
         if (!req.file) {
             return res.status(400).json({ error: 'No image uploaded.' });
         }

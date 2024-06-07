@@ -24,9 +24,8 @@ export const sendCode = async (req, res) => {
         if (!req.body.phoneNumber) {
             return res.status(404).json({ message: 'Вернитесь назад и введите данные зоново' })
         }
-        const authStr = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTg1NTUyNzIsImlhdCI6MTcxNTk2MzI3Miwicm9sZSI6InVzZXIiLCJzaWduIjoiNWQyZTBhYjIxYjI4NDY1MDk2ZGY3NWQ1ZWE3ZDJjMDVlZjZlNWZlZjVlMTBlZWZkNjZiNDM0ZThhMmZhZTNjOSIsInN1YiI6IjcwODYifQ.t498XthH4FQc7T_DSmlJgTFrvtBLT8KIcljTGDUL6ag"
+        // const authStr = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTg1NTUyNzIsImlhdCI6MTcxNTk2MzI3Miwicm9sZSI6InVzZXIiLCJzaWduIjoiNWQyZTBhYjIxYjI4NDY1MDk2ZGY3NWQ1ZWE3ZDJjMDVlZjZlNWZlZjVlMTBlZWZkNjZiNDM0ZThhMmZhZTNjOSIsInN1YiI6IjcwODYifQ.t498XthH4FQc7T_DSmlJgTFrvtBLT8KIcljTGDUL6ag"
         const code = generateCode()
-        const codeDB = code.split('-')[0] + code.split('-')[1]
         const message = `Код подтверждения для сайта crgshop.uz: ${code} Спасибо за ваш выбор!`
         const user = await AuthModel.findOne({ phoneNumber: req.body.phoneNumber })
 
@@ -43,14 +42,14 @@ export const sendCode = async (req, res) => {
         }
 
 
-        const messageRequest = await axios.post('https://notify.eskiz.uz/api/message/sms/send',
+        const messageRequest = await axios.post(process.env.ESKIZ_URL,
             {
                 mobile_phone: req.body.phoneNumber,
                 message: message,
                 from: 'Cataleya',
                 callbackUrl: ''
             }
-            , { headers: { "Authorization": authStr } })
+            , { headers: { "Authorization": process.env.ESKIZ_AUTH_STR } })
         if (messageRequest.status === 200) {
             res.status(200).json({ success: true })
         } else {
