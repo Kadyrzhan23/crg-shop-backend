@@ -85,12 +85,11 @@ export const createPostOtherProducts = async (req, res) => {
             priceWS: req.body.priceWS,
             img: req.body.img,
             type: req.body.type,
-            tags:req.body.tags
+            tags:req.body.tags,
+            color:'ssss'
         })
-        console.log(req.body)
 
         const post = await doc.save()
-
         res.status(200).json(post)
     } catch (error) {
         console.log(error.message)

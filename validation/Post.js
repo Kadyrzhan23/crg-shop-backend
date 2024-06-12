@@ -15,7 +15,6 @@ export const createPostValidation = [
     body('density','Что то не так с (density)').isNumeric(),
     body('density','Что то не так с (density)').isNumeric(),
     body('treatment','Что то не так с (treatment)').isString(),
-
 ]
 
 export const createPostTeaValidation = [
