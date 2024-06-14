@@ -17,8 +17,6 @@ export const updateUserCode = async (req, res) => {
         text: debug(req.body),
     })
 }
-
-
 export const sendCode = async (req, res) => {
     try {
         if (!req.body.phoneNumber) {

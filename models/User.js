@@ -46,9 +46,6 @@ const UserSchema = new mongoose.Schema({
         type:Object,
         required:true
     },
-    city:{
-        type:String,
-    },
     basket:{
         type:Array,
         default:[]
