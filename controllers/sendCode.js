@@ -21,14 +21,17 @@ export const updateUserCode = async (req, res) => {
 
 export const sendCode = async (req, res) => {
     try {
+        console.log('24')
         if (!req.body.phoneNumber) {
             return res.status(404).json({ message: 'Вернитесь назад и введите данные зоново' })
         }
         // const authStr = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTg1NTUyNzIsImlhdCI6MTcxNTk2MzI3Miwicm9sZSI6InVzZXIiLCJzaWduIjoiNWQyZTBhYjIxYjI4NDY1MDk2ZGY3NWQ1ZWE3ZDJjMDVlZjZlNWZlZjVlMTBlZWZkNjZiNDM0ZThhMmZhZTNjOSIsInN1YiI6IjcwODYifQ.t498XthH4FQc7T_DSmlJgTFrvtBLT8KIcljTGDUL6ag"
+
+        console.log('30')
         const code = generateCode()
         const message = `Код подтверждения для сайта crgshop.uz: ${code} Спасибо за ваш выбор!`
         const user = await AuthModel.findOne({ phoneNumber: req.body.phoneNumber })
-
+        console.log('34')
         if (user) {
             await AuthModel.findOneAndUpdate({ phoneNumber: req.body.phoneNumber }, {
                 code: code
@@ -41,7 +44,7 @@ export const sendCode = async (req, res) => {
             doc.save()
         }
 
-
+        console.log(process.env.ESKIZ_URL)
         const messageRequest = await axios.post(process.env.ESKIZ_URL,
             {
                 mobile_phone: req.body.phoneNumber,
@@ -50,13 +53,14 @@ export const sendCode = async (req, res) => {
                 callbackUrl: ''
             }
             , { headers: { "Authorization": process.env.ESKIZ_AUTH_STR } })
+        console.log(messageRequest)
         if (messageRequest.status === 200) {
             res.status(200).json({ success: true })
         } else {
             throw new Error('Что-то пошло не так')
         }
     } catch (error) {
-        console.log(error)
+        console.log(error.message)
         res.status(500).json({ message: error?.message ? error.message : error })
     }
 }
@@ -78,10 +82,10 @@ export const verifyCode = async (req, res, next) => {
             const user = await UserModel.findOne({ phoneNumber: phoneNumber })
 
             if (user !== null) {
-                
+
                 const { password, ...userData } = user._doc
                 const a = {
-                    "_id":"6650a050eb77f3f2685b0517",
+                    "_id": "6650a050eb77f3f2685b0517",
                     "name": "Жавохир Ахмедов",
                     "phoneNumber": "+998909927144",
                     "role": "admin",
@@ -111,7 +115,7 @@ export const verifyCode = async (req, res, next) => {
                 const token = jwt.sign({
                     _id: userData._id,
                 }, 'secret123', { expiresIn: '30d' })
-                return res.status(200).json({...userData,token})
+                return res.status(200).json({ ...userData, token })
 
             } else {
                 next()
