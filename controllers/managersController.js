@@ -13,9 +13,7 @@ export const getManagers = async (req, res) => {
 
 export const create = async (req, res) => {
     try {
-        console.log('first')
         const { id, name, chat_id } = req.body
-
         const doc = new ManagerModel({
             id, name, chat_id
         })
