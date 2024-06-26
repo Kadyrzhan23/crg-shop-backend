@@ -1,12 +1,12 @@
-import axios from 'axios'
-import UserModel from '../models/User.js'
-import OrderModel from '../models/Order.js'
+const axios = require('axios')
+const UserModel = require('../models/User.js')
+const OrderModel = require('../models/Order.js')
 const token = '6669205103:AAE24RYRkDOPbZ46ygWV6CoZENfXBIiAQi8'
 const chat_id = `-1002085755553`
 const chat_id_users = '-1002066903328'
 const chat_id_super = `-1002112440272`
 const uri = `https://api.telegram.org/bot${token}/sendMessage`
-export const sendMessageTg = async (req, res) => {
+const sendMessageTg = async (req, res) => {
     try {
         const user = await UserModel.findById(req.userId)
         if (!user) {
@@ -48,7 +48,7 @@ export const sendMessageTg = async (req, res) => {
     }
 }
 
-export const create = async (req, res, next) => {
+const create = async (req, res, next) => {
     try {
         const allOrders = await OrderModel.find()
         const user = await UserModel.findById({ _id: req.userId })
@@ -79,7 +79,7 @@ export const create = async (req, res, next) => {
     }
 };
 
-export const getMyOrders = async (req, res) => {
+const getMyOrders = async (req, res) => {
     try {
         const userId = req.userId
         const orders = await OrderModel.find({ userId: userId })
@@ -90,7 +90,7 @@ export const getMyOrders = async (req, res) => {
     }
 };
 
-export const getAllOrders = async (req, res) => {
+const getAllOrders = async (req, res) => {
     try {
         // const user = await UserModel.findById(req.userId)
 
@@ -110,7 +110,7 @@ export const getAllOrders = async (req, res) => {
     }
 };
 
-export const updateStatus = async (req, res) => {
+const updateStatus = async (req, res) => {
     try {
         const orderId = req.body.orderId
         const nextStatus = req.body.nextStatus
@@ -147,7 +147,7 @@ export const updateStatus = async (req, res) => {
     }
 };
 
-export const updateProductAmountInOrder = async (req, res) => {
+const updateProductAmountInOrder = async (req, res) => {
     try {
         let currentProduct = {};
         const order = await OrderModel.findById(req.body.orderId)
@@ -213,7 +213,7 @@ export const updateProductAmountInOrder = async (req, res) => {
     }
 }
 
-export const deleteProductFromOrder = async (req, res) => {
+const deleteProductFromOrder = async (req, res) => {
     try {
         let productIndex = null
         let currentProduct = {}
@@ -286,7 +286,7 @@ export const deleteProductFromOrder = async (req, res) => {
     }
 }
 
-export const getUserOrders = async (req, res) => {
+const getUserOrders = async (req, res) => {
     try {
         const id = req.params.userId
         const userOrders = await OrderModel.find({ userId: id })
@@ -301,6 +301,18 @@ export const getUserOrders = async (req, res) => {
         console.log(error.message)
         res.status(500).json({ message: error.message })
     }
+}
+
+module.exports = {
+    sendMessageTg,
+    create,
+    getMyOrders,
+    getAllOrders,
+    updateStatus,
+    updateProductAmountInOrder,
+    deleteProductFromOrder,
+    getUserOrders,
+    
 }
 
 

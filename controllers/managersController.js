@@ -1,7 +1,7 @@
-import ManagerModel from '../models/Manager.js'
-import UserModel from '../models/User.js'
+const ManagerModel = (require)
+const UserModel = require('../models/User.js')
 
-export const getManagers = async (req, res) => {
+const getManagers = async (req, res) => {
     try {
         const managers = await ManagerModel.find()
         if (managers === null) return res.status(404).json({ message: 'Что-то пошло не так' })
@@ -11,7 +11,7 @@ export const getManagers = async (req, res) => {
     }
 }
 
-export const create = async (req, res) => {
+const create = async (req, res) => {
     try {
         const { id, name, chat_id } = req.body
         const doc = new ManagerModel({
@@ -25,7 +25,7 @@ export const create = async (req, res) => {
     }
 }
 
-export const changeManagerUser = async (req, res) => {
+const changeManagerUser = async (req, res) => {
     try {
         const user = await UserModel.findOne({ _id: req.body.id })
         const manager = await ManagerModel.findOne({ name: req.body.manager })
@@ -40,4 +40,10 @@ export const changeManagerUser = async (req, res) => {
         console.log(error)
         res.status(500).json({ message: error?.message ? error.message : error })
     }
+}
+
+module.exports = {
+    getManagers,
+    create,
+    changeManagerUser
 }

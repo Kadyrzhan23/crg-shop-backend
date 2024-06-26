@@ -1,6 +1,6 @@
-import jwt from 'jsonwebtoken'
-import UserModel from '../models/User.js'
-export default async (req, res, next) => {
+const jwt = require('jsonwebtoken')
+const UserModel = require('../models/User.js')
+const func = async (req, res, next) => {
     const token = (req.headers.authorization || '').replace(/Bearer\s?/, '')
 
     if (token) {
@@ -27,3 +27,5 @@ export default async (req, res, next) => {
         })
     }
 }
+
+module.exports = func

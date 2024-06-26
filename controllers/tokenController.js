@@ -1,6 +1,6 @@
-import TokenModel from "../models/Tokens"
+const TokenModel = require("../models/Tokens")
 
-export const create = async (req, res) => {
+const create = async (req, res) => {
     try {
         const { name, token } = req.body
 
@@ -13,3 +13,4 @@ export const create = async (req, res) => {
 
     }
 }
+module.exports = create

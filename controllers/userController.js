@@ -1,11 +1,10 @@
-import bcrypt from 'bcrypt'
-import { validationResult } from 'express-validator'
-import UserModel from '../models/User.js'
-import ManagerModel from '../models/Manager.js'
-import jwt from 'jsonwebtoken'
+const bcrypt = require('bcrypt')
+const { validationResult } = require('express-validator')
+const UserModel = require('../models/User.js')
+const ManagerModel = require('../models/Manager.js')
+const jwt = require('jsonwebtoken')
 
-
-export const register = async (req, res) => {
+ const register = async (req, res) => {
     try {
         const errors = validationResult(req)
         if (!errors.isEmpty()) {
@@ -61,7 +60,7 @@ export const register = async (req, res) => {
     }
 }
 
-export const login = async (req, res) => {
+ const login = async (req, res) => {
     try {
         const errors = validationResult(req)
         if (!errors.isEmpty()) {
@@ -95,7 +94,7 @@ export const login = async (req, res) => {
     }
 }
 
-export const getMe = async (req, res) => {
+ const getMe = async (req, res) => {
     try {
         const user = await UserModel.findById(req.userId)
 
@@ -141,7 +140,7 @@ export const getMe = async (req, res) => {
     }
 }
 
-export const getAccess = async (req, res) => {
+ const getAccess = async (req, res) => {
     try {
         const user = await UserModel.findById(req.userId)
 
@@ -157,7 +156,7 @@ export const getAccess = async (req, res) => {
     }
 };
 
-export const getAllUsers = async (req, res) => {
+ const getAllUsers = async (req, res) => {
     try {
         const user = await UserModel.findById(req.userId)
 
@@ -170,7 +169,7 @@ export const getAllUsers = async (req, res) => {
     }
 };
 
-export const userLevelUp = async (req, res) => {
+ const userLevelUp = async (req, res) => {
     try {
         const user = await UserModel.findById(req.body.currentUserId)
         const managers = await ManagerModel.find()
@@ -191,7 +190,7 @@ export const userLevelUp = async (req, res) => {
     }
 }
 
-export const getUserInfo = async (req, res) => {
+ const getUserInfo = async (req, res) => {
     try {
         const id = req.params.id
 
@@ -208,7 +207,7 @@ export const getUserInfo = async (req, res) => {
     }
 }
 
-export const update = async (req, res) => {
+ const update = async (req, res) => {
     try {
         const user = await UserModel.findById(req.userId)
 
@@ -240,7 +239,7 @@ export const update = async (req, res) => {
     }
 }
 
-export const block = async (req, res) => {
+ const block = async (req, res) => {
     try {
         console.log(req.body)
         await UserModel.findByIdAndUpdate({ _id: req.body.user }, {
@@ -254,7 +253,7 @@ export const block = async (req, res) => {
     }
 }
 
-export const unlock = async (req, res) => {
+ const unlock = async (req, res) => {
     try {
         await UserModel.findByIdAndUpdate({ _id: req.body.user }, {
             isActive: true
@@ -266,7 +265,7 @@ export const unlock = async (req, res) => {
     }
 }
 
-export const verifyRegister = async (req, res) => {
+ const verifyRegister = async (req, res) => {
     try {
         const users = await UserModel.find()
         const { phoneNumber, email } = req.body
@@ -291,3 +290,16 @@ export const verifyRegister = async (req, res) => {
     }
 }
 
+module.exports = {
+    register,
+    login,
+    getMe,
+    getAccess,
+    getAllUsers,
+    userLevelUp,
+    getUserInfo,
+    update,
+    block,
+    unlock,
+    verifyRegister
+}

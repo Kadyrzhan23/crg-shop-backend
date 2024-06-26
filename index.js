@@ -1,22 +1,22 @@
-import dotenv from 'dotenv'
+const dotenv = require('dotenv')
 dotenv.config()
-import express from 'express'
-import mongoose from 'mongoose'
-import { registerValidator, loginValidator } from './validation/User.js'
-import checkAuth from './utils/checkAuth.js'
-import * as UserController from './controllers/userController.js'
-import * as PostController from './controllers/postController.js'
-import * as OrderController from './controllers/orderController.js'
-import * as ManagerController from './controllers/managersController.js'
-import * as SendCode from './controllers/sendCode.js'
-import { createPostValidation, createPostTeaValidation, createPostOtherValidation } from './validation/Post.js'
-import cors from "cors";
-import multer from 'multer';
-import fs from 'fs'
-import path from "path";
-import checkAuthAdmin from './utils/checkAuthAdmin.js'
-import { sendMessage } from './controllers/tgMessageController.js'
-import Manager from './models/Manager.js'
+const express = require('express')
+const mongoose = require('mongoose')
+const { registerValidator, loginValidator } = require('./validation/User.js')
+const checkAuth = require('./utils/checkAuth.js')
+const UserController = require('./controllers/userController.js')
+const PostController = require('./controllers/postController.js')
+const OrderController = require('./controllers/orderController.js')
+const ManagerController = require('./controllers/managersController.js')
+const SendCode = require('./controllers/sendCode.js')
+const { createPostValidation, createPostTeaValidation, createPostOtherValidation } = require('./validation/Post.js')
+const cors = require("cors")
+const multer = require('multer')
+const fs = require('fs')
+const path = require("path")
+const checkAuthAdmin = require('./utils/checkAuthAdmin.js')
+const { sendMessage } = require('./controllers/tgMessageController.js')
+const Manager = require('./models/Manager.js')
 console.log(process.env.MONGO_DB_URL)
 mongoose
     // .connect(process.env.MONGO_DB_URL)
@@ -62,7 +62,7 @@ app.use('/uploads', express.static('uploads'));
 
 //Авторизация
 app.post('/register', registerValidator, UserController.register)
-app.post('/register-verify',UserController.verifyRegister)
+app.post('/register-verify', UserController.verifyRegister)
 app.post('/login', loginValidator, UserController.login)
 app.get('/me', checkAuth, UserController.getMe)
 app.patch('/update-user-data', checkAuth, UserController.update)
@@ -78,9 +78,9 @@ app.post('/post/create/other', checkAuthAdmin, createPostOtherValidation, PostCo
 app.post('/post/favorites', PostController.getFavorites)
 app.post('/post', checkAuthAdmin, PostController.deletePost)
 app.patch('/post/add-in-top', checkAuthAdmin, PostController.addInTop)
-app.patch('/post/delete-from-top', checkAuthAdmin, PostController.deleteFromTop)
+app.patch('/post/delete-=-top', checkAuthAdmin, PostController.deleteFromTop)
 app.patch('/post/add-in-stop', checkAuthAdmin, PostController.addInStop)
-app.patch('/post/delete-from-stop', checkAuthAdmin, PostController.deleteFromStop)
+app.patch('/post/delete-=-stop', checkAuthAdmin, PostController.deleteFromStop)
 
 
 
@@ -99,16 +99,16 @@ app.get('/user/:id', checkAuthAdmin, UserController.getUserInfo)
 app.get('/user-orders/:userId', checkAuthAdmin, OrderController.getUserOrders)
 app.patch('/block-user', checkAuthAdmin, UserController.block)
 app.patch('/unlock-user', checkAuthAdmin, UserController.unlock)
-app.post('/managers/create',checkAuthAdmin , ManagerController.create)
-app.get('/managers',checkAuthAdmin , ManagerController.getManagers)
-app.post('/change-manager',checkAuthAdmin , ManagerController.changeManagerUser)
+app.post('/managers/create', checkAuthAdmin, ManagerController.create)
+app.get('/managers', checkAuthAdmin, ManagerController.getManagers)
+app.post('/change-manager', checkAuthAdmin, ManagerController.changeManagerUser)
 
 
 
 
 //Разработка
 app.post('/send-code', SendCode.sendCode)
-app.post('/verify-code', SendCode.verifyCode,UserController.register)
+app.post('/verify-code', SendCode.verifyCode, UserController.register)
 
 
 

@@ -1,6 +1,6 @@
-import { body } from 'express-validator'
+const { body } = require('express-validator')
 
-export const registerValidator = [
+const registerValidator = [
     body('name','Имя минимум 3 символа').isLength({min:3}).isString(),
     body('email','Неверный формат почты').optional().isEmail(),
     body('phoneNumber','неправильный формат номера телефона').isMobilePhone(),
@@ -10,6 +10,12 @@ export const registerValidator = [
     body('avatarUrl','Некорректная ссылка на аватарку').optional(),
 ]
 
-export const loginValidator = [
+
+const loginValidator = [
     body('phoneNumber','неправильный формат номера телефона').isMobilePhone(),
 ]
+
+module.exports =  {
+    loginValidator,
+    registerValidator
+}

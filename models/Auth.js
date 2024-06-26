@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const AuthSchema = new mongoose.Schema({
     phoneNumber:{
@@ -12,4 +12,4 @@ const AuthSchema = new mongoose.Schema({
     }
 });
 
-export default mongoose.model('authmodel',AuthSchema)
+module.exports = mongoose.model('authmodel',AuthSchema)

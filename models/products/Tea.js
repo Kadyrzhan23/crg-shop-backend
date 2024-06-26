@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = "mongoose";
 
 const TeaSchema = new mongoose.Schema({
     name:{

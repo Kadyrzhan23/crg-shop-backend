@@ -1,10 +1,10 @@
-import PostModel from '../models/Post.js'
-import { validationResult } from 'express-validator';
-import TeaModel from '../models/Tea.js';
-import mongoose from 'mongoose';
+const PostModel = require('../models/Post.js')
+const { validationResult } = require('express-validator');
+const TeaModel = require('../models/Tea.js');
+const mongoose = require('mongoose');
 const AnyModel = mongoose.models.post || mongoose.models('Post',AnySchema)
 
-export const getAll = async (req, res,) => {
+const getAll = async (req, res,) => {
     try {
         const data = await PostModel.find()
         if (!data) {
@@ -20,7 +20,7 @@ export const getAll = async (req, res,) => {
 }
 
 
-export const createCoffe = async (req, res) => {
+const createCoffe = async (req, res) => {
     try {
         const errors = validationResult(req)
         if (!errors.isEmpty()) {
@@ -53,7 +53,7 @@ export const createCoffe = async (req, res) => {
     }
 }
 
-export const createPostTea = async (req, res) => {
+const createPostTea = async (req, res) => {
     try {
         // console.log(req.body)
         const doc = new TeaModel({
@@ -76,7 +76,7 @@ export const createPostTea = async (req, res) => {
     }
 }
 
-export const createPostOtherProducts = async (req, res) => {
+const createPostOtherProducts = async (req, res) => {
     try {
         const doc = new AnyModel({
             name: req.body.name,
@@ -99,7 +99,7 @@ export const createPostOtherProducts = async (req, res) => {
 
 
 
-export const getFavorites = async (req, res) => {
+const getFavorites = async (req, res) => {
     try {
         const params = req.body.params
         let temp = [];
@@ -114,7 +114,7 @@ export const getFavorites = async (req, res) => {
 }
 
 
-export const addInTop = async (req, res) => {
+const addInTop = async (req, res) => {
     try {
         await PostModel.findByIdAndUpdate({ _id: req.body.postId }, {
             topList: true
@@ -129,7 +129,7 @@ export const addInTop = async (req, res) => {
     }
 }
 
-export const deleteFromTop = async (req, res) => {
+const deleteFromTop = async (req, res) => {
     try {
 
         await PostModel.findByIdAndUpdate({ _id: req.body.postId }, {
@@ -145,7 +145,7 @@ export const deleteFromTop = async (req, res) => {
     }
 }
 
-export const addInStop = async (req, res) => {
+const addInStop = async (req, res) => {
     try {
         await PostModel.findByIdAndUpdate({ _id: req.body.postId }, {
             stopList: true
@@ -160,7 +160,7 @@ export const addInStop = async (req, res) => {
     }
 }
 
-export const deleteFromStop = async (req, res) => {
+const deleteFromStop = async (req, res) => {
     try {
         await PostModel.findByIdAndUpdate({ _id: req.body.postId }, {
            stopList:false
@@ -175,7 +175,7 @@ export const deleteFromStop = async (req, res) => {
     }
 }
 
-export const deletePost = async (req, res) => {
+const deletePost = async (req, res) => {
     try {
         await PostModel.findByIdAndDelete({ _id: req.body.postId })
         const posts = await PostModel.find()
@@ -184,4 +184,18 @@ export const deletePost = async (req, res) => {
         console.log(error)
         res.status(500).json({ error: error.message })
     }
+}
+
+
+module.exports = {
+    getAll,
+    createCoffe,
+    createPostTea,
+    createPostOtherProducts,
+    getFavorites,
+    addInTop,
+    deleteFromTop,
+    addInStop,
+    deleteFromStop,
+    deletePost
 }

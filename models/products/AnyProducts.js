@@ -1,5 +1,5 @@
 
-import mongoose from "mongoose";
+const mongoose = "mongoose";
 
 const AnyProducts = new mongoose.Schema({
     name:{
