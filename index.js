@@ -10,7 +10,7 @@ const OrderController = require('./controllers/orderController.js')
 const ManagerController = require('./controllers/managersController.js')
 const SendCode = require('./controllers/sendCode.js')
 const { createPostValidation, createPostTeaValidation, createPostOtherValidation } = require('./validation/Post.js')
-const cors = require("cors")
+const cors = require('cors')
 const multer = require('multer')
 const fs = require('fs')
 const path = require("path")
@@ -33,7 +33,11 @@ mongoose
 
 const app = express()
 
-app.use(cors());
+const corsOptions = {
+    origin: 'https://cataleya.uz',
+    optionSuccessStatus: 200, // для старых браузеров и SmartTV
+}
+app.use(cors(corsOptions));
 
 //Загрузка фото для верификации
 const uploadDir = './uploads'
