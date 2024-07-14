@@ -17,7 +17,12 @@ const path = require("path")
 const checkAuthAdmin = require('./utils/checkAuthAdmin.js')
 const { sendMessage } = require('./controllers/tgMessageController.js')
 const Manager = require('./models/Manager.js')
-console.log(process.env.MONGO_DB_URL)
+
+//-------------HTTPS-----------------------------//
+const https = require('https')
+
+
+//console.log(process.env.MONGO_DB_URL)
 mongoose
     // .connect(process.env.MONGO_DB_URL)
     // .connect('mongodb+srv://zarimkofe:wwwwww@cluster0.ddu19sw.mongodb.net/blog?retryWrites=true&w=majority&ssl=true')
@@ -33,11 +38,13 @@ mongoose
 
 const app = express()
 
-const corsOptions = {
-    origin: 'https://cataleya.uz',
-    optionSuccessStatus: 200, // для старых браузеров и SmartTV
-}
-app.use(cors(corsOptions));
+app.use(cors());
+
+//HTTPS
+const sslServer = https.createServer({
+    key: fs.readFileSync(path.join(__dirname, 'privkey.pem')),
+    cert: fs.readFileSync(path.join(__dirname, 'cert.pem')),
+}, app);
 
 //Загрузка фото для верификации
 const uploadDir = './uploads'
@@ -121,11 +128,6 @@ app.get('/get-all-managers', async (req, res) => {
     res.json(response)
 })
 
-
-
-
-
-
 // Роут для загрузки картинки
 app.post('/upload', upload.single('image'), (req, res) => {
     try {
@@ -142,10 +144,10 @@ app.post('/upload', upload.single('image'), (req, res) => {
     }
 });
 
-app.listen(process.env.PORT || 4444, (err) => {
+//Server listen port
+sslServer.listen(process.env.PORT || 4444, (err) => {
     if (err) {
         return console.log(err)
     }
-
     console.log('Server Ok')
 })
