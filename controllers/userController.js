@@ -22,7 +22,6 @@ export const register = async (req, res) => {
         if (!bool && req.body.phoneNumber.length !== 9) {
             res.status(401).json({ message: 'Invalid phone number' })
         }
-        // console.log(req.body)
 
         let doc = new UserModel({
             name: req.body.name,
@@ -35,10 +34,8 @@ export const register = async (req, res) => {
             manager:managers[0]
             // password: passwordHash
         })
-        // console.log(req.body.hasOwnProperty("email"))
         if (req.body.hasOwnProperty("email")) doc.email = req.body.email
         else doc.email = `default:${+new Date()}`
-        console.log(doc)
         const user = await doc.save()
         const { password, ...userData } = user._doc
 
@@ -48,7 +45,6 @@ export const register = async (req, res) => {
         res.json({ ...userData, token })
     }
     catch (err) {
-        console.log(err)
         if (err?.keyPattern?.email) {
             res.status(401).json({ message: 'Email уже зарегистрирован' })
             return
@@ -75,13 +71,6 @@ export const login = async (req, res) => {
             })
         }
 
-        // const isValidPass = await bcrypt.compare(req.body.phoneNumber, user._doc.phoneNumber)
-        // if (!isValidPass) {
-        //     console.log('this')
-        //     return res.status(403).json({
-        //         message: 'Неверный логин или пароль'
-        //     })
-        // }
 
         const { password, ...userData } = user._doc
 
@@ -90,7 +79,6 @@ export const login = async (req, res) => {
         }, 'secret123', { expiresIn: '30d' })
         res.status(200).json({success:true})
     } catch (error) {
-        console.log(error)
         res.status(500).json({ message: "Не удалось авторизоватся" })
     }
 }
@@ -134,10 +122,9 @@ export const getMe = async (req, res) => {
         })
 
     } catch (error) {
-        console.log(error)
-        // res.status(404).json({
-        //     message: 'Нет доступа'
-        // })
+        res.status(404).json({
+            message: 'Нет доступа'
+        })
     }
 }
 
@@ -174,7 +161,6 @@ export const userLevelUp = async (req, res) => {
     try {
         const user = await UserModel.findById(req.body.currentUserId)
         const managers = await ManagerModel.find()
-        console.log(managers)
         if (!user) {
             res.status(404).json({ message: 'Пользователь не найден' })
         }

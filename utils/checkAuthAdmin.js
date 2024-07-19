@@ -8,7 +8,8 @@ export default async (req, res, next) => {
             const decoded = jwt.verify(token, 'secret123')
             req.userId = decoded._id
             const user = await UserModel.findById(req.userId)
-            if (user.role === 'admin' || user.role === 'operator') {
+            req.userInfo = user
+            if (user.role === 'admin' || user.role === 'operator' || user.role === 'developer' || user.role === 'manager' || user.role === 'master' || user.role === 'heaver') {
                 req.userName = user.name
                 next()
             } else {

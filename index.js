@@ -17,7 +17,6 @@ import path from "path";
 import checkAuthAdmin from './utils/checkAuthAdmin.js'
 import { sendMessage } from './controllers/tgMessageController.js'
 import Manager from './models/Manager.js'
-console.log(process.env.MONGO_DB_URL)
 mongoose
     // .connect(process.env.MONGO_DB_URL)
     // .connect('mongodb+srv://zarimkofe:wwwwww@cluster0.ddu19sw.mongodb.net/blog?retryWrites=true&w=majority&ssl=true')

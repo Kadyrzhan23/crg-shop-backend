@@ -14,7 +14,6 @@ export const getAll = async (req, res,) => {
         }
         res.status(200).json(data)
     } catch (err) {
-        console.log(err)
         return res.status(500).json({ message: "Не удалось создать пост" })
     }
 }
@@ -55,7 +54,6 @@ export const createCoffe = async (req, res) => {
 
 export const createPostTea = async (req, res) => {
     try {
-        // console.log(req.body)
         const doc = new TeaModel({
             name: req.body.name,
             description: req.body.description,
@@ -92,7 +90,6 @@ export const createPostOtherProducts = async (req, res) => {
         const post = await doc.save()
         res.status(200).json(post)
     } catch (error) {
-        console.log(error.message)
         res.status(500).json({ message: error.message })
     }
 }
@@ -124,7 +121,6 @@ export const addInTop = async (req, res) => {
 
         res.status(200).json(posts)
     } catch (error) {
-        console.log(error)
         res.status(500).json({ message: error.message })
     }
 }
@@ -140,7 +136,6 @@ export const deleteFromTop = async (req, res) => {
 
         res.status(200).json(posts)
     } catch (error) {
-        console.log(error)
         res.status(500).json({ message: error.message })
     }
 }
@@ -155,7 +150,6 @@ export const addInStop = async (req, res) => {
 
         res.status(200).json(posts)
     } catch (error) {
-        console.log(error)
         res.status(500).json({ message: error.message })
     }
 }
@@ -170,7 +164,6 @@ export const deleteFromStop = async (req, res) => {
 
         res.status(200).json(posts)
     } catch (error) {
-        console.log(error)
         res.status(500).json({ message: error.message })
     }
 }
@@ -181,7 +174,6 @@ export const deletePost = async (req, res) => {
         const posts = await PostModel.find()
         res.status(200).json(posts)
     } catch (error) {
-        console.log(error)
         res.status(500).json({ error: error.message })
     }
 }

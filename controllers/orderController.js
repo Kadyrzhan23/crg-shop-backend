@@ -43,7 +43,6 @@ export const sendMessageTg = async (req, res) => {
             })
         }
     } catch (error) {
-        console.log(error.message)
         res.status(500).json({ message: error.message })
     }
 }
@@ -52,7 +51,6 @@ export const create = async (req, res, next) => {
     try {
         const allOrders = await OrderModel.find()
         const user = await UserModel.findById({ _id: req.userId })
-        console.log(user)
         const basket = req.body.basket
         const indentifier = generateIdentifier(allOrders.length + 1)
         req.identifier = indentifier
@@ -64,14 +62,14 @@ export const create = async (req, res, next) => {
             totalPrice: req.body.totalPrice,
             paymentMethod: req.body.paymentMethod,
             identifier: indentifier,
-            manager:user.manager
+            manager:user.manager,
+            userStatus:req.userInfo.role
         })
 
         const order = await doc.save()
         req.order = order
         next()
     } catch (error) {
-        console.log(error)
         res.status(500).json({
             message: 'Ошибка при создание заказа',
             doc: error.message
@@ -100,12 +98,25 @@ export const getAllOrders = async (req, res) => {
                 message: 'Не удалось получить всех заказов'
             })
         }
-
-        const managerOrders = allOrders.filter(order => req.userId === order.manager.id)
-
-        res.status(200).json(managerOrders)
+        if(req.userInfo.role === 'master' || req.userInfo.role === 'developer' || req.userInfo.role === 'admin' || req.userInfo.role === 'manager'){
+            res.status(200).json(allOrders)
+        }
+        // else if(req.userInfo.role === 'manager'){
+        //     const managerOrders = allOrders.filter(order => req.userId === order.manager.id)
+        //     res.status(200).json(managerOrders)
+        // }
+        else if(req.userInfo.role === 'operator'){
+            const reatilOrders = allOrders.filter(order => order.statusUser === 'user')
+            res.status(200).json(reatilOrders)
+        }else if(req.userInfo.role === 'heaver'){
+            const orders = allOrders.filter(order => order.status === 'В ожидании' || order.status === 'Отказано' || order.status === 'В ожидании')
+            res.status(200).json(orders)
+        }else{
+            console.log(req.userInfo)
+            res.status(400).json({message:'У вас нет прав для получении данно инфо'})
+        }
     } catch (error) {
-        console.log(error)
+        
         res.status(500).json({ message: error.message })
     }
 };
@@ -142,7 +153,6 @@ export const updateStatus = async (req, res) => {
         res.status(200).json({ success: true })
 
     } catch (error) {
-        console.log(error)
         res.status(500).json({ message: error.message })
     }
 };
@@ -208,7 +218,6 @@ export const updateProductAmountInOrder = async (req, res) => {
         const order2 = await OrderModel.findById(req.body.orderId)
         res.status(200).json({ order2 })
     } catch (error) {
-        console.log(error.message)
         res.status(500).json({ message: error.message })
     }
 }
@@ -226,7 +235,6 @@ export const deleteProductFromOrder = async (req, res) => {
         if (order.listProducts.length < 2) {
             return res.status(400).json({ message: 'Нельзя удалить продукт если в заказе только одна позиция' })
         }
-        // console.log(listProducts[0].id,req.body.productId)
         listProducts.forEach((product, index) => {
             if (product.id === req.body.productId) {
                 if (product.amount === req.body.amount) {
@@ -236,7 +244,6 @@ export const deleteProductFromOrder = async (req, res) => {
             }
         })
 
-        console.log(currentProduct)
 
         if (!currentProduct.amount) {
             return res.status(500).json({ message: 'Не удалось удалить продукт из заказа' })
@@ -247,7 +254,6 @@ export const deleteProductFromOrder = async (req, res) => {
 
 
         rejectedList.map((product, index) => {
-            console.log(product.id, currentProduct.id)
             if (product.id === currentProduct.id) {
                 if (product.weight === currentProduct.weight) {
                     productBool = true
@@ -256,8 +262,6 @@ export const deleteProductFromOrder = async (req, res) => {
             }
         })
 
-        console.log(productBool)
-        console.log(productIndex)
 
         if (productBool && productIndex !== null) {
             rejectedList[productIndex].amount = rejectedList[productIndex].amount + currentProduct.amount
@@ -281,7 +285,6 @@ export const deleteProductFromOrder = async (req, res) => {
         const order2 = await OrderModel.findById(req.body.orderId)
         res.status(200).json(order2)
     } catch (error) {
-        console.log(error.message)
         res.status(500).json({ message: 'Не удалось удалить продукт из заказа' })
     }
 }
@@ -292,13 +295,11 @@ export const getUserOrders = async (req, res) => {
         const userOrders = await OrderModel.find({ userId: id })
 
         if (!userOrders) {
-            console.log(userOrders)
             return res.status(404).json({ message: 'User not found' })
         }
 
         return res.status(200).json(userOrders)
     } catch (error) {
-        console.log(error.message)
         res.status(500).json({ message: error.message })
     }
 }
@@ -334,7 +335,6 @@ function totalCost(basket) {
     return priceAdjustment(total)
 }
 function priceAdjustment(val) {
-    // console.log(val)
     let temp = String(val).split('')
     let str = []
     temp = temp.reverse()
@@ -358,7 +358,6 @@ async function orderNumber(type) {
 
 async function generateOrderText({ basket, user, order, paymentMethod, totalPrice, identifier }) {
     let totalCost = 0
-    console.log(user)
     let message = `<b>${user._doc.role === 'superUser' ? '«««««ОПТ»»»»»' : '«««««Розница»»»»»'}</b>\n`
     message += `<b>Клиент: </b>${user._doc.name}\n`
     message += `<b><a href="tel:${user._doc.phoneNumber}">Номер телефона: </a></b>${user._doc.phoneNumber}\n`
