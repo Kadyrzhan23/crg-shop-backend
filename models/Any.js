@@ -28,7 +28,18 @@ const AnySchema = new mongoose.Schema({
     tags:{
         type:Array,
         required:true,
+    },
+    stopList:{
+        type:Boolean,
+        required:true,
+        default:false,
+    },
+    topList:{
+        type:Boolean,
+        required:true,
+        default:false,
     }
+
 })
 
 export default mongoose.model('post',AnySchema);

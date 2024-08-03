@@ -19,6 +19,8 @@ export const register = async (req, res) => {
         const bool = regexp.test(req.body.phoneNumber)
         const phoneNumber = bool ? req.body.phoneNumber : `+998${req.body.phoneNumber}`
         const managers = await ManagerModel.find()
+        const manager = managers.filter(m => m.role === 'operator')
+        console.log(manager)
         if (!bool && req.body.phoneNumber.length !== 9) {
             res.status(401).json({ message: 'Invalid phone number' })
         }
@@ -31,9 +33,9 @@ export const register = async (req, res) => {
             address: req.body.address,
             telegram: req.body.telegram,
             avatarUrl: req.body.avatarUrl,
-            manager:managers[0]
-            // password: passwordHash
+            manager: managers[0]
         })
+        console.log(doc)
         if (req.body.hasOwnProperty("email")) doc.email = req.body.email
         else doc.email = `default:${+new Date()}`
         const user = await doc.save()
@@ -45,6 +47,7 @@ export const register = async (req, res) => {
         res.json({ ...userData, token })
     }
     catch (err) {
+        console.log(err)
         if (err?.keyPattern?.email) {
             res.status(401).json({ message: 'Email уже зарегистрирован' })
             return
@@ -77,7 +80,7 @@ export const login = async (req, res) => {
         const token = jwt.sign({
             _id: user._id,
         }, 'secret123', { expiresIn: '30d' })
-        res.status(200).json({success:true})
+        res.status(200).json({ success: true })
     } catch (error) {
         res.status(500).json({ message: "Не удалось авторизоватся" })
     }
@@ -94,28 +97,7 @@ export const getMe = async (req, res) => {
         }
 
         const { password, ...userData } = user._doc
-        const a = {
-            "_id":"6650a050eb77f3f2685b0517",
-            "name": "Жавохир Ахмедов",
-            "phoneNumber": "+998909927144",
-            "role": "admin",
-            "address": [
-                "Nurafshon, 8"
-            ],
-            "telegram": "@exxxxpresso",
-            "avatarUrl": "uploads/1716833232247.jpg",
-            "organization": [],
-            "isActive": true,
-            "manager": {
-                "_id": "664e5cc082d55ec269275d88",
-                "name": "Manager 2",
-                "chat_id": "",
-                "id": "6650a050eb77f3f2685b0517",
-                "__v": 0
-            },
-            "email": "reddou4@mail.ru",
-            "__v": 0
-        }
+
 
         return res.json({
             ...userData
@@ -167,7 +149,7 @@ export const userLevelUp = async (req, res) => {
 
         await UserModel.findByIdAndUpdate({ _id: req.body.currentUserId }, {
             role: "superUser",
-            manager:managers[1]
+            manager: managers[1]
         })
 
         res.status(200).json({ message: 'Уровен пользователя поднято' })
@@ -203,13 +185,16 @@ export const update = async (req, res) => {
                 message: 'Пользователь не найден или ваш аккаунт заблокирован'
             })
         }
+        let tempAddress = req.body.address
+        console.log(tempAddress)
+        req.body.addressDop !== '' && tempAddress.push(req.body.addressDop)
 
         const response = await UserModel.findByIdAndUpdate({ _id: req.userId }, {
             name: req.body.name !== '' ? req.body.name : user.name,
             email: req.body.email !== '' ? req.body.email : user.email,
             phoneNumber: req.body.phoneNumber !== '' ? req.body.phoneNumber : user.phoneNumber,
             telegram: req.body.telegram !== '' ? req.body.telegram : user.telegram,
-            address: req.body.address !== '' ? req.body.address : user.address,
+            address: req.body.address !== '' ? req?.body?.addressDop !== '' ? tempAddress : req.body.address : user.address,
             avatarUrl: req.body.avatarUrl !== '' ? req.body.avatarUrl : user.avatarUrl
         })
         res.status(200).json(response)
@@ -274,6 +259,31 @@ export const verifyRegister = async (req, res) => {
         res.status(401).json({
             message: error?.message ? error.message : error
         })
+    }
+}
+
+export const addDestinationPoint = async (req, res) => {
+    try {
+        if (!req.userInfo) {
+            return res.status(403).json({ message: 'Нет доступа' })
+        }
+
+        if (!req.body.address) {
+            return res.status(403).json({ message: 'Ошибка на клиенте' })
+        }
+
+        let template = req.userInfo.address
+        template.push(req.body.address)
+
+        await UserModel.findByIdAndUpdate({ _id: req.userId }, {
+            address: template
+        })
+
+        res.status(200).json({ message: 'Данные успешно загрузились' })
+
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ message: error?.message ? error.message : error })
     }
 }
 

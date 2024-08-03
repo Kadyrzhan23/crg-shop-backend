@@ -50,6 +50,7 @@ export const sendCode = async (req, res) => {
             throw new Error('Что-то пошло не так')
         }
     } catch (error) {
+        console.log(error)
         res.status(500).json({ message: error?.message ? error.message : error })
     }
 }
@@ -64,7 +65,6 @@ export const verifyCode = async (req, res, next) => {
 
         }
 
-
         if (model.code === code) {
             await AuthModel.findOneAndDelete({ phoneNumber: phoneNumber })
 
@@ -73,34 +73,6 @@ export const verifyCode = async (req, res, next) => {
             if (user !== null) {
 
                 const { password, ...userData } = user._doc
-                const a = {
-                    "_id": "6650a050eb77f3f2685b0517",
-                    "name": "Жавохир Ахмедов",
-                    "phoneNumber": "+998909927144",
-                    "role": "admin",
-                    "address": [
-                        "Nurafshon, 8"
-                    ],
-                    "telegram": "@exxxxpresso",
-                    "avatarUrl": "uploads/1716833232247.jpg",
-                    "organization": [],
-                    "isActive": true,
-                    "manager": {
-                        "_id": "664e5cc082d55ec269275d88",
-                        "name": "Manager 2",
-                        "chat_id": "",
-                        "id": "6650a050eb77f3f2685b0517",
-                        "__v": 0
-                    },
-                    "email": "reddou4@mail.ru",
-                    "__v": 0
-                }
-                // const token = jwt.sign({
-                //     _id: a._id,
-                // }, 'secret123', { expiresIn: '30d' })
-                // const b = { ...a, token }
-                // return res.status(200).json(b)
-
                 const token = jwt.sign({
                     _id: userData._id,
                 }, 'secret123', { expiresIn: '30d' })
@@ -114,6 +86,7 @@ export const verifyCode = async (req, res, next) => {
         }
 
     } catch (error) {
+        console.log(error)
         res.status(500).json({ message: error?.message ? error.message : error })
     }
 }

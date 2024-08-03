@@ -8,12 +8,7 @@ const chat_id_super = `-1002112440272`
 const uri = `https://api.telegram.org/bot${token}/sendMessage`
 export const sendMessageTg = async (req, res) => {
     try {
-        const user = await UserModel.findById(req.userId)
-        if (!user) {
-            return res.sendStatus(404).json({
-                message: 'Нет доступа'
-            })
-        }
+        const user = req.user
 
         const options = {
             basket: req.order.listProducts,
@@ -25,7 +20,7 @@ export const sendMessageTg = async (req, res) => {
         }
         const message = await generateOrderText(options)
         const request = await axios.post(uri, {
-            chat_id: user.role === 'superUser' ? chat_id_super : chat_id_users,
+            chat_id: req.userInfo.role === 'superUser' ? chat_id_super : chat_id_users,
             parse_mode: 'html',
             text: message,
         })
@@ -43,6 +38,7 @@ export const sendMessageTg = async (req, res) => {
             })
         }
     } catch (error) {
+        console.log(error)
         res.status(500).json({ message: error.message })
     }
 }
@@ -50,26 +46,33 @@ export const sendMessageTg = async (req, res) => {
 export const create = async (req, res, next) => {
     try {
         const allOrders = await OrderModel.find()
-        const user = await UserModel.findById({ _id: req.userId })
+        const user = req.userInfo
+        if (!user.isActive) {
+            return res.status(403).json({
+                message: 'Ваш аккаунт заблактрован обратитесь к администратору'
+            })
+        }
         const basket = req.body.basket
         const indentifier = generateIdentifier(allOrders.length + 1)
         req.identifier = indentifier
         const doc = new OrderModel({
-            userId: req.userId,
+            user:req.userInfo,
             listProducts: basket,
             creationDate: getDate(),
             comment: req.body.comment,
             totalPrice: req.body.totalPrice,
             paymentMethod: req.body.paymentMethod,
             identifier: indentifier,
-            manager:user.manager,
-            userStatus:req.userInfo.role
+            manager: user.manager,
+            userStatus: req.userInfo.role,
+            address: req.body.address,
         })
 
         const order = await doc.save()
         req.order = order
         next()
     } catch (error) {
+        console.log(error)
         res.status(500).json({
             message: 'Ошибка при создание заказа',
             doc: error.message
@@ -98,25 +101,25 @@ export const getAllOrders = async (req, res) => {
                 message: 'Не удалось получить всех заказов'
             })
         }
-        if(req.userInfo.role === 'master' || req.userInfo.role === 'developer' || req.userInfo.role === 'admin' || req.userInfo.role === 'manager'){
+        if (req.userInfo.role === 'master' || req.userInfo.role === 'developer' || req.userInfo.role === 'admin' || req.userInfo.role === 'manager') {
             res.status(200).json(allOrders)
         }
         // else if(req.userInfo.role === 'manager'){
         //     const managerOrders = allOrders.filter(order => req.userId === order.manager.id)
         //     res.status(200).json(managerOrders)
         // }
-        else if(req.userInfo.role === 'operator'){
-            const reatilOrders = allOrders.filter(order => order.statusUser === 'user')
+        else if (req.userInfo.role === 'operator') {
+            const reatilOrders = allOrders.filter(order => order.userStatus === 'user')
             res.status(200).json(reatilOrders)
-        }else if(req.userInfo.role === 'heaver'){
+        } else if (req.userInfo.role === 'heaver') {
             const orders = allOrders.filter(order => order.status === 'В ожидании' || order.status === 'Отказано' || order.status === 'В ожидании')
             res.status(200).json(orders)
-        }else{
+        } else {
             console.log(req.userInfo)
-            res.status(400).json({message:'У вас нет прав для получении данно инфо'})
+            res.status(400).json({ message: 'У вас нет прав для получении данно инфо' })
         }
     } catch (error) {
-        
+
         res.status(500).json({ message: error.message })
     }
 };
@@ -125,12 +128,13 @@ export const updateStatus = async (req, res) => {
     try {
         const orderId = req.body.orderId
         const nextStatus = req.body.nextStatus
+        console.log(nextStatus)
         await OrderModel.findByIdAndUpdate({ _id: orderId },
             {
                 status: nextStatus
             })
         const order = await OrderModel.findById({ _id: orderId })
-        const user = await UserModel.findById(order.userId)
+        const user = await UserModel.findById(order.user._id)
         if (!user || user === null) {
             return res.status(404).json({ message: 'Пользователь не найден' })
         }
@@ -153,6 +157,7 @@ export const updateStatus = async (req, res) => {
         res.status(200).json({ success: true })
 
     } catch (error) {
+        console.log(error)
         res.status(500).json({ message: error.message })
     }
 };
@@ -358,13 +363,13 @@ async function orderNumber(type) {
 
 async function generateOrderText({ basket, user, order, paymentMethod, totalPrice, identifier }) {
     let totalCost = 0
-    let message = `<b>${user._doc.role === 'superUser' ? '«««««ОПТ»»»»»' : '«««««Розница»»»»»'}</b>\n`
-    message += `<b>Клиент: </b>${user._doc.name}\n`
-    message += `<b><a href="tel:${user._doc.phoneNumber}">Номер телефона: </a></b>${user._doc.phoneNumber}\n`
+    let message = `<b>${order.user.role === 'superUser' ? '«««««ОПТ»»»»»' : '«««««Розница»»»»»'}</b>\n`
+    message += `<b>Клиент: </b>${order.user.name}\n`
+    message += `<b><a href="tel:${order.user.phoneNumber}">Номер телефона: </a></b>${order.user.phoneNumber}\n`
     message += `<b>Номер: </b>${identifier}\n`
     message += `<b>Способ оплаты: </b>${paymentMethod}\n`
-    message += `<b>Менеджер: </b>${order.manager.name}\n`
-
+    message += `<b>Менеджер: </b>${order.user.manager.name}\n`
+    message += `<b>Адрес: </b>${order.address}\n`
     message += `\n`
     message += `<b>«««««ЗАКАЗ»»»»»</b>\n`
     message += `\n`
@@ -379,6 +384,7 @@ async function generateOrderText({ basket, user, order, paymentMethod, totalPric
         else if (product.type === 'drip') type = 'Дрип-кофе'
         message += `Вид товара:${type}\n`
         message += `${product.name} ${product.type === 'coffe-beans' ? `(${product.roast})` : ''}\n`
+        product.type === 'coffe-beans' ? message += `Обработка: ${product.treatment}\n` : ''
         message += product.type === 'coffe-beans' ? `Вес:${product.weight}\n` : ''
         message += product.type === 'tea' ? `Упаковка:${product.package}\n` : ''
         message += `Кол-во:${product.amount}\n`

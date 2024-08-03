@@ -36,6 +36,16 @@ const TeaSchema = new mongoose.Schema({
     color:{
         type:String,
         required:true,
+    },
+    stopList:{
+        type:Boolean,
+        required:true,
+        default:false,
+    },
+    topList:{
+        type:Boolean,
+        required:true,
+        default:false,
     }
 })
 

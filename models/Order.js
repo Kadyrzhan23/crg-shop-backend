@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 
 const OrderSchema = new mongoose.Schema({
-    userId: {
-        type: String,
+    user:{
+        type: Object,
         required: true,
     },
     listProducts: {
@@ -16,6 +16,10 @@ const OrderSchema = new mongoose.Schema({
     departureDate: {
         type: String,
         default: null,
+    },
+    address:{
+        type: String,
+        required: true,
     },
     closingDate: {
         type: String,

@@ -17,10 +17,14 @@ import path from "path";
 import checkAuthAdmin from './utils/checkAuthAdmin.js'
 import { sendMessage } from './controllers/tgMessageController.js'
 import Manager from './models/Manager.js'
+import https from 'https'
+const privkey = fs.readFileSync('./privkey.pem')
+const certkey = fs.readFileSync('./cert.pem')
+
 mongoose
-    // .connect(process.env.MONGO_DB_URL)
+    .connect(process.env.MONGO_DB_URL)
     // .connect('mongodb+srv://zarimkofe:wwwwww@cluster0.ddu19sw.mongodb.net/blog?retryWrites=true&w=majority&ssl=true')
-    .connect('mongodb+srv://zarimkofe:wwwwww@cluster0.ddu19sw.mongodb.net/deploy?retryWrites=true&w=majority&ssl=true')
+    // .connect('mongodb+srv://zarimkofe:wwwwww@cluster0.ddu19sw.mongodb.net/deploy?retryWrites=true&w=majority&ssl=true')
     .then(() => {
         // sendMessage('Db connect')
         console.log('Db Ok')
@@ -33,6 +37,10 @@ mongoose
 const app = express()
 
 app.use(cors());
+const sslServer  = https.createServer ({
+key: privkey,
+cert: certkey,
+}, app);
 
 //Загрузка фото для верификации
 const uploadDir = './uploads'
@@ -68,6 +76,7 @@ app.patch('/update-user-data', checkAuth, UserController.update)
 // app.post('/send-code', SendCode.updateUserCode)
 app.patch('/block-user', checkAuthAdmin, UserController.block)
 app.patch('/unlock-user', checkAuthAdmin, UserController.unlock)
+app.patch('/add-destination-point',checkAuth,UserController.addDestinationPoint)
 
 //Посты
 app.get('/post/getAll', PostController.getAll)
