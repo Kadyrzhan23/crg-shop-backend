@@ -12,7 +12,6 @@ export default async(req, res, next) => {
             req.userInfo = user
             next()
         } catch (error) {
-            console.log(error)
             return res.status(403).json({
                 message: "Нет доступа"
             })

@@ -30,7 +30,10 @@ export const register = async (req, res) => {
             phoneNumber: phoneNumber,
             role: req.body.role,
             city: req.body.city,
-            address: req.body.address,
+            address: {
+                organization:"Default",
+                address:req.body.address
+            },
             telegram: req.body.telegram,
             avatarUrl: req.body.avatarUrl,
             manager: managers[0]
@@ -185,16 +188,14 @@ export const update = async (req, res) => {
                 message: 'Пользователь не найден или ваш аккаунт заблокирован'
             })
         }
-        let tempAddress = req.body.address
-        console.log(tempAddress)
-        req.body.addressDop !== '' && tempAddress.push(req.body.addressDop)
+
 
         const response = await UserModel.findByIdAndUpdate({ _id: req.userId }, {
             name: req.body.name !== '' ? req.body.name : user.name,
             email: req.body.email !== '' ? req.body.email : user.email,
             phoneNumber: req.body.phoneNumber !== '' ? req.body.phoneNumber : user.phoneNumber,
             telegram: req.body.telegram !== '' ? req.body.telegram : user.telegram,
-            address: req.body.address !== '' ? req?.body?.addressDop !== '' ? tempAddress : req.body.address : user.address,
+            address: req.body.address,
             avatarUrl: req.body.avatarUrl !== '' ? req.body.avatarUrl : user.avatarUrl
         })
         res.status(200).json(response)

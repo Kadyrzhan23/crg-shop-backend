@@ -56,6 +56,7 @@ export const create = async (req, res, next) => {
         const indentifier = generateIdentifier(allOrders.length + 1)
         req.identifier = indentifier
         const doc = new OrderModel({
+            userId: req.userInfo._id,
             user:req.userInfo,
             listProducts: basket,
             creationDate: getDate(),
@@ -82,11 +83,10 @@ export const create = async (req, res, next) => {
 
 export const getMyOrders = async (req, res) => {
     try {
-        const userId = req.userId
-        const orders = await OrderModel.find({ userId: userId })
-
+        const orders = await OrderModel.find({ userId: req.userId })
         res.status(200).json(orders)
     } catch (error) {
+        console.log(error)
         res.status(404).json({ message: 'Ошибка на стороне сервера' })
     }
 };
@@ -387,7 +387,7 @@ async function generateOrderText({ basket, user, order, paymentMethod, totalPric
         product.type === 'coffe-beans' ? message += `Обработка: ${product.treatment}\n` : ''
         message += product.type === 'coffe-beans' ? `Вес:${product.weight}\n` : ''
         message += product.type === 'tea' ? `Упаковка:${product.package}\n` : ''
-        message += `Кол-во:${product.amount}\n`
+        message += `Кол-во:${product.amount} × ${product.price}\n`
         message += product.type === 'coffe-beans' ? `Помол:${product.pomol}\n` : ''
         message += `\n`
         const price = +product.price.split(' ').join('')
