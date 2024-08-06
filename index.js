@@ -146,7 +146,7 @@ app.post('/upload', upload.single('image'), (req, res) => {
     }
 });
 
-app.listen(process.env.PORT || 4444, (err) => {
+sslServer.listen(process.env.PORT || 4444, (err) => {
     if (err) {
         return console.log(err)
     }
